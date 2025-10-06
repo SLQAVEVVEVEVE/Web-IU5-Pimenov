@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Строй и пой — балки</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "app", media: "all" %>
+</head>
+<body class="page">
+  <header class="header">
+  <%= link_to root_path, class: "brand", title: "На главную" do %>
+    <%= image_tag "logo.png", alt: "Строй и пой", class: "brand-logo" %>
+    <span class="sr-only">Домой</span>
+  <% end %>
+</header>
+  <main class="container"><%= yield %></main>
+
+  <%# Плавающая корзина показывается только если @order задан в контроллере %>
+  <% if defined?(@order) && @order.present? %>
+    <%= link_to order_path(@order[:id]), class: "fab-cart", title: "Открыть заявку" do %>
+      <%= image_tag "cart.png", alt: "", class: "fab-cart__icon" %>
+      <span class="fab-cart__badge"><%= (defined?(@basket_count) ? @basket_count : @order[:items].size) %></span>
+      <span class="sr-only">В заявке позиций: <%= (defined?(@basket_count) ? @basket_count : @order[:items].size) %></span>
+    <% end %>
+  <% end %>
+
+</body>
+
+</html>
