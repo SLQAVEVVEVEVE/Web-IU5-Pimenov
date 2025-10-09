@@ -1,0 +1,32 @@
+<h1 class="order-title">Оставить заявку</h1>
+<div class="customer">
+  <label for="cust">Заказчик:</label>
+  <input id="cust" type="text" placeholder="..." value="">
+</div>
+
+<p style="text-align:center;margin-bottom:20px">
+  ID заявки: <strong><%= @order[:id] %></strong>
+  · Результат расчёта (мм): <strong><%= @order[:result_mm] %></strong>
+</p>
+
+<% @order[:items].each do |item| %>
+  <% s = @services_by_id[item[:service_id]] %>
+  <div class="order-row">
+    <% if s.image_key.present? %>
+      <img src="<%= image_url_for(s.image_key) %>" alt="Изображение: <%= s.name %>">
+    <% else %>
+      <div class="thumb" aria-hidden="true" style="width:96px;height:96px"></div>
+    <% end %>
+
+    <div class="order-title-cell">
+      <%= s.material %><br>
+      <span class="meta"><%= s.name %></span>
+    </div>
+
+    <input class="order-input" type="text" placeholder="..." value="">
+    <div class="order-field"><%= s.e_gpa %> ГПа</div>
+    <div class="order-field"><%= s.norm %></div>
+    <div class="order-field">—</div>
+    <div class="order-field order-mm"><%= item[:qty] %></div>
+  </div>
+<% end %>

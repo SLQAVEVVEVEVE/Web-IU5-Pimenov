@@ -1,0 +1,268 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+
+ /* ==== ДИЗАЙН-ТОКЕНЫ (подправишь под Figma при желании) ==== */
+:root{
+  /* Цвета */
+  --brand: #FFB300;         /* акцент кнопки */
+  --bg-page: #FFFFFF;
+  --bg-card: #F5F5F5;       /* фон карточек */
+  --text: #1F2937;          /* текст */
+  --text-dim: #6B7280;      /* подписи */
+  --border: #E5E7EB;
+
+  /* Типографика */
+  --ff: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --h1: 28px;  --h1-lh: 36px;  --h1-w: 700;   /* заголовки страниц */
+  --h2: 22px;  --h2-lh: 30px;  --h2-w: 700;   /* заголовок карточки */
+  --body: 16px; --body-lh: 24px; --body-w: 400;
+  --cap: 12px; --cap-lh: 16px;
+
+  /* Сетка / размеры */
+  --container: 1120px;
+  --gap: 16px;
+  --radius: 12px;
+  --pad-card: 16px;
+  --img: 96px;             /* миниатюра в листинге */
+  --img-lg: 160px;         /* миниатюра в деталке */
+
+  /* Тени */
+  --shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+
+/* ==== БАЗА ==== */
+*{box-sizing:border-box}
+body.page{margin:0;font-family:var(--ff);color:var(--text);background:var(--bg-page)}
+.header{display:flex;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border)}
+.header .home{color:var(--text);text-decoration:none;font-weight:600}
+.container{max-width:var(--container);margin:24px auto;padding:0 16px}
+
+
+.page-title{
+  margin: 8px 0 16px; text-align:center;
+  font-size: var(--h1); line-height: var(--h1-lh); font-weight: var(--h1-w);
+}
+
+/* Поиск */
+.search {
+  display: flex; gap: 8px; align-items: center;
+  max-width: 540px; margin: 8px 0 16px;
+}
+.search__input {
+  flex: 1 1 auto; height: 36px; padding: 0 10px;
+  border: 1px solid #d8d8d8; border-radius: 6px;
+}
+.search__btn {
+  height: 36px; padding: 0 14px; border-radius: 6px;
+  background: #f2b23a; border: none; font-weight: 600;
+  cursor: pointer;
+}
+.search__btn:hover { filter: brightness(.98); }
+
+/* «Корзина» (блок заявки на листинге) */
+.basket{background:var(--bg-card);border-radius:var(--radius);padding:16px;margin:16px auto;max-width:720px;text-align:center}
+
+/* Сетка карточек */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:var(--gap);margin-top:16px}
+
+/* Карточка услуги */
+.card{
+  background:var(--bg-card); border-radius:var(--radius); padding:var(--pad-card);
+  display:grid; grid-template-columns: var(--img) 1fr; gap:var(--gap);
+  transition:box-shadow .15s ease;
+}
+.card:hover{ box-shadow:var(--shadow); }
+.thumb{width:var(--img);height:var(--img);border-radius:10px;object-fit:cover;background:#e9e9e9}
+.card h3{margin:0 0 6px;font-size:var(--h2);line-height:var(--h2-lh);font-weight:var(--h2-w)}
+.meta{font-size:var(--cap);line-height:var(--cap-lh);color:var(--text-dim);margin-bottom:10px}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--brand);color:#000;text-decoration:none;font-weight:600}
+
+/* Детальная страница */
+.card-lg{grid-template-columns: var(--img-lg) 1fr}
+.thumb-lg{width:var(--img-lg);height:var(--img-lg)}
+
+/* Страница заявки */
+.order-title{ text-align:center; font-size:var(--h1); line-height:var(--h1-lh); font-weight:var(--h1-w); margin: 8px 0 16px; }
+.customer{max-width:720px;margin:0 auto 20px;display:flex;gap:12px;align-items:center;justify-content:center}
+.customer input{
+  width:360px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+}
+
+.order-row{
+  background:var(--bg-card); border-radius:var(--radius); padding:var(--pad-card);
+  display:grid; grid-template-columns: 96px 1fr 120px 100px 80px 120px 100px;
+  align-items:center; gap:var(--gap); margin-bottom:12px;
+}
+.order-row img{width:96px;height:96px;object-fit:cover;border-radius:10px}
+.order-title-cell{font-weight:600}
+.order-field, .order-input{
+  text-align:center; background:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px;
+}
+.order-input{ text-align:left; }
+.order-mm{ background:#e9e9e9; }
+
+/* Лого  */
+.brand { display:inline-flex; align-items:center; text-decoration:none }
+.brand-logo { height: 40px; width: auto; display:block }   /* подгони высоту под макет */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
+
+/* Floating Cart (нижний левый угол) */
+
+.cart-fab{
+  position: fixed;
+  right: 24px;
+  /* чтобы не прилипала к нижней панели/«чёлке»: */
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 9999;           /* поверх всего */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: #141318;     /* тёмная «пилюля» */
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2), 0 2px 6px rgba(0,0,0,.15);
+  text-decoration: none;
+  transform: translateZ(0); /* убирает артефакты рендеринга */
+}
+
+.cart-fab:hover{ filter: brightness(1.05); }
+
+.cart-fab__icon{
+  font-size: 22px;
+  line-height: 1;
+}
+
+.cart-fab__badge{
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: #f59e0b;    /* янтарный */
+  color: #111;
+  font: 700 12px/22px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+
+
+
+.sr-only{ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
+
+
+@media (max-width: 480px){
+  .fab-cart{ left:16px; bottom:16px; width:52px; height:52px }
+  .fab-cart__icon{ width:26px; height:26px }
+}
+
+.brand { display:inline-flex; align-items:center; text-decoration:none }
+.brand-logo { height: 40px; width: auto; display:block }
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
+
+
+/* ---------- Buttons ---------- */
+:root{
+  --brand:#f2b23a;       /* жёлтая */
+  --brand-600:#e4a62f;
+  --ink:#212529;         /* тёмный текст */
+  --muted:#6c757d;
+  --danger:#d6423e;
+  --danger-600:#c13a36;
+  --ring: rgba(0,0,0,.12);
+}
+
+.btn{
+  --bg:#fff; --fg:var(--ink); --bd:#d8d8d8;
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:.5rem; height:38px; padding:0 14px; border-radius:10px;
+  border:1px solid var(--bd); background:var(--bg); color:var(--fg);
+  font-weight:600; text-decoration:none; cursor:pointer;
+  transition:.15s ease;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+.btn:hover{ filter:brightness(.98); box-shadow:0 0 0 4px var(--ring); }
+.btn:active{ transform:translateY(1px); }
+
+.btn--sm{ height:30px; padding:0 10px; border-radius:8px; font-size: .9rem; }
+
+.btn--primary{ --bg:var(--brand); --bd:transparent; }
+.btn--primary:hover{ background:var(--brand-600); }
+
+.btn--outline{ --bg:#fff; --bd:#e1e1e1; }
+.btn--muted{ --bg:#f7f7f8; --bd:#e6e6e6; --fg:#333; }
+
+.btn--danger{ --bg:var(--danger); --bd:transparent; color:#fff; }
+.btn--danger:hover{ background:var(--danger-600); }
+
+/* ---------- Cards (общий стиль с главной) ---------- */
+.cards{ display:grid; grid-template-columns: 1fr; gap:16px; }
+@media (min-width: 940px){ .cards{ grid-template-columns: 1fr 1fr; } }
+
+.card{
+  display:grid; grid-template-columns: 84px 1fr; gap:16px;
+  background:#f6f6f7; border-radius:12px; padding:16px;
+}
+.card .thumb{ width:84px; height:84px; border-radius:10px; object-fit:cover; }
+
+.card__title{ font-weight:700; margin-bottom:6px; }
+.card__meta{ color:#6b7280; font-size:.92rem; line-height:1.35; }
+
+.card__row{ display:flex; gap:10px; margin-top:10px; align-items:center; }
+
+.inp{
+  height:34px; padding:0 10px; border:1px solid #d8d8d8; border-radius:8px;
+  background:#fff; min-width:110px;
+}
+.inp:focus{ outline:none; box-shadow:0 0 0 4px var(--ring); }
+
+.section-title{ font-size:26px; font-weight:800; margin: 18px 0; }
+.subtle{ color:#6c757d; font-size:.95rem; }
+
+/* FAB уже есть – оставляем */
+/* Поиск */
+.search-bar {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 16px;
+}
+
+.input--search {
+  flex: 1;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  outline: none;
+}
+
+/* Корзина: колонка карточек */
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Карточка услуги в корзине */
+.service-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #f7f7f8;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+}

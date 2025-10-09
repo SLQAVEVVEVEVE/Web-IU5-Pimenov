@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Строй и пой — балки</title>
+    <%= csrf_meta_tag %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="page">
+    <header class="header">
+      <%= link_to root_path, class: "brand", title: "На главную" do %>
+        <%= image_tag "logo.png", alt: "Строй и пой", class: "brand-logo" %>
+      <% end %>
+    </header>
+
+    <main class="container"><%= yield %></main>
+
+    <!-- ВАЖНО: FAB-корзина только перед </body>, не в <head> -->
+    <%= render "shared/cart_badge" %>
+  </body>
+</html>

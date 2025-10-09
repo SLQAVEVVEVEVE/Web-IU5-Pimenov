@@ -1,0 +1,8 @@
+<%# Плавающая кнопка-корзина. Показываем только если есть что показывать %>
+<% if defined?(@basket_count) && @basket_count.to_i > 0 %>
+  <%= link_to deflection_request_path(current_draft_request),
+              class: "cart-fab", aria: { label: "Открыть корзину" } do %>
+    <span class="cart-fab__icon" aria-hidden="true">🛒</span>
+    <span class="cart-fab__badge"><%= @basket_count %></span>
+  <% end %>
+<% end %>
