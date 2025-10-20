@@ -9,10 +9,10 @@ Rails.application.routes.draw do
   # post "/deflection-requests/:id/delete", to: "deflection_requests#delete", as: :delete_deflection_request
 
   resources :load_forecasts do
-    resources :load_forecast_beam_types, path: :items, only: [:create, :update, :destroy]
+    resources :load_forecast_beam_types, path: :items, as: :items, only: [:create, :update, :destroy]
   end
-
-  # Быстрый справочник по типам балок (для фронта карточек)
   resources :beam_types, only: [:index, :show]
-
+  post 'beam_types/:beam_type_id/add_to_deflection_request',
+     to: 'legacy_cart#add',
+     as: :add_to_deflection_request
 end
