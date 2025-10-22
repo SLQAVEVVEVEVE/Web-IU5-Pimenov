@@ -3,7 +3,7 @@
 <article class="card card-lg" style="margin:0 auto;max-width:920px;">
   <img class="thumb-lg" src="<%= image_url_for(@service.image_key) %>" alt="Изображение: <%= @service.name %>">
   <div>
-    <p class="meta">Материал: <%= @service.material %> · Модуль упругости: <%= @service.e_gpa %> ГПа · Норма: <%= @service.norm %></p>
+    <p class="meta">Материал: <%= @service.material %> · Модуль упругости: <%= @service.elasticity_gpa %> ГПа · Норма: <%= @service.norm %></p>
     <p style="font-size:var(--body);line-height:var(--body-lh)"><%= @service.description %></p>
   </div>
 </article>

@@ -1,41 +1,57 @@
 class ServicesController < ApplicationController
-  include MinioHelper
-
+  helper_method :cart_items_count, :cart_total_qty
+  before_action :set_draft
+  # HTML + JSON (если понадобится отдать справочник для фронта)
   def index
-    @q = (params[:search] || params[:q]).to_s.strip
-    @order = Catalog.order
+    @q = params[:q].to_s.strip
+    scope = Service.active.order(:id)
+    scope = scope.where("LOWER(name) LIKE ?", "%#{@q.downcase}%") if @q.present?
+    @services = scope
 
-    all = Catalog.services
-
-    if @q.blank?
-      @services = all
-    else
-      q = @q.downcase
-      # вытащим цифры, если в запросе есть число (например, "200" или "L/250")
-      q_digits = q.gsub(/[^\d]/, '')
-
-      @services = all.select do |s|
-        hay = [
-          s.name,
-          s.material,
-          s.norm,
-          "#{s.e_gpa}",   # матч по числу ГПа
-        ].compact.join(' ').downcase
-
-        match_text = hay.include?(q)
-        match_digits = q_digits.present? && hay.gsub(/[^\d]/, '').include?(q_digits)
-
-        match_text || match_digits
-      end
+    respond_to do |format|
+      format.html # рендерит ваши текущие вьюхи index.html.erb
+      format.json { render json: @services.select(:id, :name, :material, :elasticity_gpa, :norm, :image_key) }
     end
-
-    # бейдж — количество услуг (позиций)
-    @basket_count = @order[:items].size
   end
 
   def show
-    @service = Catalog.services.find { _1.id == params[:id].to_i }
-    return render file: Rails.public_path.join("404.html"), status: :not_found, layout: false unless @service
-    @order = Catalog.order
+    @service = Service.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: @service.slice(:id, :name, :material, :elasticity_gpa, :norm, :image_key, :deleted_at) }
+    end
+  end
+
+  private
+
+  def set_draft
+    @draft = Requests::EnsureDraft.new(user_id: current_user_id).call
+  end
+  # ===== «Корзина» теперь на Request + request_services =====
+
+  # кол-во строк в текущем черновике
+  def cart_items_count(request = current_draft_request)
+    return 0 unless request
+    items = request.request_services
+    items.loaded? ? items.size : items.count
+  end
+
+  # суммарное количество (quantity) по строкам черновика
+  def cart_total_qty(request = current_draft_request)
+    return 0 unless request
+    items = request.request_services
+    items.loaded? ? items.sum(&:quantity) : items.sum(:quantity)
+  end
+
+  # текущий черновик расчёта — статус :pending (0)
+  def current_draft_request
+    Request.active.where(requester_id: current_user_id, status: 0).first
+  end
+
+  # демо: вместо current_user.id
+  def current_user_id
+    # здесь можешь подставить current_user&.id, если Devise/own auth уже подключена
+    1
   end
 end

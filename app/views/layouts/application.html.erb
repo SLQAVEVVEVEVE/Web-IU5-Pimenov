@@ -16,7 +16,8 @@
     </header>
 
     <main class="container"><%= yield %></main>
-
+    <p style="color: green;"><%= notice %></p>
+    <p style="color: red;"><%= alert %></p>
     <!-- ВАЖНО: FAB-корзина только перед </body>, не в <head> -->
     <%= render "shared/cart_badge" %>
   </body>

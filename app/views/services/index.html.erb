@@ -1,10 +1,13 @@
-<h1 class="page-title">Типы балок</h1>
+<h1 class="page-title">Каталог услуг</h1>
 
-<div class="search-wrap">
-  <form method="get" action="<%= beam_types_path %>">
-    <input class="search" type="text" name="search"
-           placeholder="Поиск по названию, материалу, норме, числам..."
-           value="<%= @q %>">
+<div class="search-container">
+  <form method="get" action="<%= services_path %>">
+    <div class="search-wrapper">
+      <input class="search-input" type="text" name="q"
+             placeholder="Поиск по названию, материалу, норме, числам..."
+             value="<%= @q %>">
+      <button type="submit" class="search-btn">Найти</button>
+    </div>
   </form>
 </div>
 
@@ -14,8 +17,14 @@
       <img class="thumb" src="<%= image_url_for(s.image_key) %>" alt="Изображение: <%= s.name %>">
       <div>
         <h3><%= s.name %></h3>
-        <div class="meta">Материал: <%= s.material %> · Модуль упругости: <%= s.e_gpa %> ГПа · Норма: <%= s.norm %></div>
-        <a class="btn" href="<%= beam_type_path(s.id) %>">Подробнее</a>
+        <div class="meta">Материал: <%= s.material %> · Модуль упругости: <%= s.elasticity_gpa %> ГПа · Норма: <%= s.norm %></div>
+        <div class="card-actions">
+          <%= button_to 'Добавить в корзину',
+                        add_to_request_path(s.id),
+                        method: :post,
+                        class: 'btn btn--outline' %>
+          <a class="btn" href="<%= service_path(s.id) %>">Подробнее</a>
+        </div>
       </div>
     </article>
   <% end %>
@@ -26,7 +35,7 @@
   <p style="text-align:center;opacity:.7;margin-top:16px">Ничего не найдено по запросу “<%= @q %>”.</p>
 <% end %>
 
-<%= link_to deflection_request_path(@order[:id]), class: "fab-cart", title: "Открыть заявку" do %>
+<%= link_to request_path(@draft), class: "fab-cart", title: "Открыть заявку" do %>
   <%= image_tag "cart.png", alt: "", class: "fab-cart__icon" %>
-  <span class="fab-cart__badge"><%= @basket_count %></span>
+  <span class="fab-cart__badge"><%= cart_items_count %></span>
 <% end %>
