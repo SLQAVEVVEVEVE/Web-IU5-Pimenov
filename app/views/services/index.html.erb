@@ -1,41 +1,59 @@
-<h1 class="page-title">Каталог услуг</h1>
+<%# app/views/services/index.html.erb %>
+<h1 class="page-title">Типы балок</h1>
 
-<div class="search-container">
-  <form method="get" action="<%= services_path %>">
-    <div class="search-wrapper">
-      <input class="search-input" type="text" name="q"
-             placeholder="Поиск по названию, материалу, норме, числам..."
-             value="<%= @q %>">
-      <button type="submit" class="search-btn">Найти</button>
-    </div>
-  </form>
-</div>
-
-<div class="grid">
-  <% @services.each do |s| %>
-    <article class="card">
-      <img class="thumb" src="<%= image_url_for(s.image_key) %>" alt="Изображение: <%= s.name %>">
-      <div>
-        <h3><%= s.name %></h3>
-        <div class="meta">Материал: <%= s.material %> · Модуль упругости: <%= s.elasticity_gpa %> ГПа · Норма: <%= s.norm %></div>
-        <div class="card-actions">
-          <%= button_to 'Добавить в корзину',
-                        add_to_request_path(s.id),
-                        method: :post,
-                        class: 'btn btn--outline' %>
-          <a class="btn" href="<%= service_path(s.id) %>">Подробнее</a>
-        </div>
-      </div>
-    </article>
+<div class="toolbar">
+  <%= form_with url: services_path, method: :get, local: true do |f| %>
+    <%= f.search_field :q, placeholder: "Поиск по названию, материалу…", class: "search-input" %>
+    <%= f.submit "Найти", class: "btn btn--primary" %>
   <% end %>
 </div>
 
+<% if @services.any? %>
+  <div class="grid">
+    <% @services.each do |s| %>
+      <div class="card card--grid">
+        <div class="card__thumb-wrap">
+          <%= image_tag minio_image_url(s.image_url), alt: s.name, class: "card__thumb" %>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title"><%= s.name %></h3>
+          <div class="card__meta">
+            Материал: <%= s.material %> · E = <%= s.elasticity_gpa %> ГПа · I = <%= number_with_precision(s.inertia_cm4, precision: 1) %> см⁴ · Норма: L/<%= s.allowed_deflection_ratio %>
+          </div>
 
-<% if @services.empty? %>
-  <p style="text-align:center;opacity:.7;margin-top:16px">Ничего не найдено по запросу “<%= @q %>”.</p>
+          <div class="card__actions">
+            <a href="<%= service_path(s) %>" class="btn btn--secondary"><span>Подробнее</span></a>
+            <%= form_with url: cart_items_path, method: :post, local: true do %>
+              <%= hidden_field_tag :service_id, s.id %>
+              <%= hidden_field_tag :quantity, 1 %>
+              <%= submit_tag "В заявку", class: "btn btn--primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p style="text-align:center; color:#6b7280; margin-top:16px">
+    <% if params[:q].present? %>
+      Ничего не найдено по запросу "<%= params[:q] %>".
+    <% else %>
+      Нет доступных услуг.
+    <% end %>
+  </p>
 <% end %>
 
-<%= link_to request_path(@draft), class: "fab-cart", title: "Открыть заявку" do %>
-  <%= image_tag "cart.png", alt: "", class: "fab-cart__icon" %>
-  <span class="fab-cart__badge"><%= cart_items_count %></span>
+<%# Floating cart FAB (left-bottom). Keep server-only logic, no JS. %>
+<% if @cart_available %>
+  <%= link_to cart_path, class: "fab-cart", title: "Открыть заявку" do %>
+    <%= image_tag "cart.png", alt: "", class: "fab-cart__icon" %>
+    <span class="fab-cart__badge"><%= @cart_items_count %></span>
+    <span class="sr-only">В заявке: <%= @cart_items_count %></span>
+  <% end %>
+<% else %>
+  <button class="fab-cart is-disabled" title="Заявка отсутствует" disabled aria-disabled="true">
+    <%= image_tag "cart.png", alt: "", class: "fab-cart__icon" %>
+    <span class="fab-cart__badge">0</span>
+    <span class="sr-only">Заявка отсутствует</span>
+  </button>
 <% end %>

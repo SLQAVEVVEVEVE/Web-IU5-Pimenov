@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+echo "Setting up the database..."
+
+# Run database setup commands
+bin/rails db:create
+bin/rails db:migrate
+
+echo "Database setup complete!"

@@ -1,37 +1,30 @@
-# version: "3.9"
 services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
-      POSTGRES_DB: beams
-    ports:
-      - "5432:5432"
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-
-  adminer:
-    image: adminer
-    depends_on:
-      - db
-    ports:
-      - "8080:8080"
-
   web:
     build: .
     ports:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      - DATABASE_HOST=db
+      - RAILS_ENV=development
     depends_on:
+      - db
       - minio
     volumes:
       - .:/app
     command: bash -lc "rm -f tmp/pids/server.pid && bin/rails s -b 0.0.0.0 -p 3000"
-    environment:
-      DATABASE_URL: postgres://app:app@db:5432/beams
 
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=beam_deflection_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -46,4 +39,4 @@ services:
 
 volumes:
   minio_data:
-  dbdata:
+  postgres_data:

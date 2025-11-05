@@ -1,32 +1,101 @@
-<h1 class="order-title">Оставить заявку</h1>
-<div class="customer">
-  <label for="cust">Заказчик:</label>
-  <input id="cust" type="text" placeholder="..." value="">
+<%# app/views/orders/show.html.erb %>
+<h1 class="page-title">Текущая заявка</h1>
+
+<div class="toolbar" style="justify-content:space-between; gap:12px;">
+  <div>
+    <%= link_to "К выбору", services_path, class: "btn btn--secondary" %>
+  </div>
+  
+  <div style="display: flex; gap: 12px;">
+    <% if @request.draft? || @request.formed? %>
+      <%= button_to "Завершить", complete_order_path(@request),
+            method: :post,
+            class: "btn btn--primary",
+            form: { data: { turbo_confirm: "Завершить заявку и выполнить расчёт?" } } %>
+    <% end %>
+    
+    <%# Кнопка логического удаления заявки (НЕ ORM) — оставляем как в проекте %>
+    <%= form_with url: delete_order_path(@request), method: :post, local: true do |f| %>
+      <%= f.submit "Удалить заявку", class: "btn btn--danger" %>
+    <% end %>
+  </div>
 </div>
 
-<p style="text-align:center;margin-bottom:20px">
-  ID заявки: <strong><%= @order[:id] %></strong>
-  · Результат расчёта (мм): <strong><%= @order[:result_mm] %></strong>
-</p>
-
-<% @order[:items].each do |item| %>
-  <% s = @services_by_id[item[:service_id]] %>
-  <div class="order-row">
-    <% if s.image_key.present? %>
-      <img src="<%= image_url_for(s.image_key) %>" alt="Изображение: <%= s.name %>">
-    <% else %>
-      <div class="thumb" aria-hidden="true" style="width:96px;height:96px"></div>
-    <% end %>
-
-    <div class="order-title-cell">
-      <%= s.material %><br>
-      <span class="meta"><%= s.name %></span>
+<%# Display calculation results if available %>
+<% if @request.result_deflection_mm.present? %>
+  <div class="card" style="margin-bottom: 24px; padding: 16px;">
+    <h3 style="margin-top: 0; margin-bottom: 12px;">Результаты расчёта</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      <div>
+        <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Суммарный прогиб</div>
+        <div style="font-size: 20px; font-weight: 600;">
+          <%= number_with_precision(@request.result_deflection_mm, precision: 2) %> <span style="font-size: 14px; color: #6b7280;">мм</span>
+        </div>
+      </div>
+      <% if @request.calculated_at %>
+        <div>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Рассчитано</div>
+          <div style="font-size: 14px;">
+            <%= l(@request.calculated_at, format: :long) %>
+          </div>
+        </div>
+      <% end %>
     </div>
-
-    <input class="order-input" type="text" placeholder="..." value="">
-    <div class="order-field"><%= s.elasticity_gpa %> ГПа</div>
-    <div class="order-field"><%= s.norm %></div>
-    <div class="order-field">—</div>
-    <div class="order-field order-mm"><%= item[:qty] %></div>
   </div>
+<% end %>
+
+<% if @items.any? %>
+  <div class="grid">
+    <% @items.each do |item| %>
+      <% s = item.service %>
+
+      <div class="card card--grid">
+        <div class="card__thumb-wrap">
+          <%= image_tag minio_image_url(s.image_url), alt: s.name, class: "card__thumb" %>
+        </div>
+
+        <div class="card__body">
+          <h3 class="card__title"><%= s.name %></h3>
+
+          <div class="card__meta">
+            Материал: <%= s.material %> · Модуль E: <%= s.elasticity_gpa %> ГПа · Норма: L/<%= s.allowed_deflection_ratio %>
+          </div>
+
+          <div class="order-inputs">
+            <label class="order-inputs__field">
+              <span>Длина, м</span>
+              <input type="number" step="0.1" value="<%= item.length_m || 3.0 %>" name="length_<%= item.id %>" form="update_form_#{item.id}" />
+            </label>
+
+            <label class="order-inputs__field">
+              <span>Нагрузка q, кН/м</span>
+              <input type="number" step="0.1" value="<%= item.udl_kn_m || 10.0 %>" name="udl_kn_m_<%= item.id %>" form="update_form_#{item.id}" />
+            </label>
+
+            <div class="order-qty">× <%= item.quantity %></div>
+          </div>
+          
+          <% if item.deflection_mm.present? %>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+              <div style="font-size: 14px; color: #6b7280;">Прогиб по позиции:</div>
+              <div style="font-weight: 500;">
+                <%= number_with_precision(item.deflection_mm, precision: 2) %> <span style="font-size: 14px; color: #6b7280;">мм</span>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @request.draft? || @request.formed? %>
+            <%= form_with url: update_order_item_path(item), method: :patch, local: true, id: "update_form_#{item.id}" do |f| %>
+              <%= f.hidden_field :id, value: item.id %>
+              <button type="submit" class="btn btn--small" style="margin-top: 8px;">Обновить</button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p style="text-align:center;color:#6b7280;margin-top:16px">
+    В заявке пока нет услуг.
+  </p>
 <% end %>

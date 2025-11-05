@@ -1,57 +1,30 @@
+# frozen_string_literal: true
+
 class ServicesController < ApplicationController
-  helper_method :cart_items_count, :cart_total_qty
-  before_action :set_draft
-  # HTML + JSON (если понадобится отдать справочник для фронта)
+  helper MinioHelper
+  include MinioHelper
+
+  # GET /services
+  # Server-side search only; active services only.
   def index
-    @q = params[:q].to_s.strip
-    scope = Service.active.order(:id)
-    scope = scope.where("LOWER(name) LIKE ?", "%#{@q.downcase}%") if @q.present?
-    @services = scope
+    scope = Service.available
 
-    respond_to do |format|
-      format.html # рендерит ваши текущие вьюхи index.html.erb
-      format.json { render json: @services.select(:id, :name, :material, :elasticity_gpa, :norm, :image_key) }
+    if params[:q].present?
+      q = params[:q].to_s.strip
+      scope = scope.where("name ILIKE :q OR description ILIKE :q", q: "%#{q}%")
     end
+
+    @services = scope.order(:name)
+
+    # If ApplicationController defines current_draft (as in this project), expose a flag and count for the view.
+    @cart_available = respond_to?(:current_draft, true) && current_draft.present?
+    @cart_items_count = @cart_available ? current_draft.requests_services.sum(:quantity) : 0
   end
 
+  # GET /services/:id
   def show
-    @service = Service.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @service.slice(:id, :name, :material, :elasticity_gpa, :norm, :image_key, :deleted_at) }
-    end
-  end
-
-  private
-
-  def set_draft
-    @draft = Requests::EnsureDraft.new(user_id: current_user_id).call
-  end
-  # ===== «Корзина» теперь на Request + request_services =====
-
-  # кол-во строк в текущем черновике
-  def cart_items_count(request = current_draft_request)
-    return 0 unless request
-    items = request.request_services
-    items.loaded? ? items.size : items.count
-  end
-
-  # суммарное количество (quantity) по строкам черновика
-  def cart_total_qty(request = current_draft_request)
-    return 0 unless request
-    items = request.request_services
-    items.loaded? ? items.sum(&:quantity) : items.sum(:quantity)
-  end
-
-  # текущий черновик расчёта — статус :pending (0)
-  def current_draft_request
-    Request.active.where(requester_id: current_user_id, status: 0).first
-  end
-
-  # демо: вместо current_user.id
-  def current_user_id
-    # здесь можешь подставить current_user&.id, если Devise/own auth уже подключена
-    1
+    @service = Service.available_scope.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to services_path, alert: "Услуга недоступна."
   end
 end

@@ -1,15 +1,28 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  url: <%= ENV["DATABASE_URL"] %>
-  pool: 10
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: postgres
+  password: postgres
+  host: db
+  port: 5432
 
 development:
   <<: *default
+  database: beam_deflection_development
 
 test:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] || "postgres://app:app@db:5432/beams_test" %>
+  database: <%= ENV['TEST_DATABASE'] || 'beam_deflection_test' %>
+  schema_search_path: public
+  min_messages: warning
 
 production:
   <<: *default
+  database: <%= ENV['DATABASE_NAME'] || 'beam_deflection_production' %>
+  username: <%= ENV['DATABASE_USERNAME'] || 'postgres' %>
+  password: <%= ENV['DATABASE_PASSWORD'] || 'postgres' %>
+  host: <%= ENV['DATABASE_HOST'] || 'db' %>
+  port: <%= ENV['DATABASE_PORT'] || 5432 %>
+  schema_search_path: public
+  min_messages: warning

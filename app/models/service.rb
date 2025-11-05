@@ -1,60 +1,58 @@
 class Service < ApplicationRecord
-  # Используем кастомное имя таблицы для соответствия предметной области
-  self.table_name = "beam_types"
+  MATERIALS = %w[wooden steel reinforced_concrete].freeze
+  
+  has_many :requests_services, dependent: :restrict_with_error
+  has_many :requests, through: :requests_services
 
-  # Ассоциации с заявками
-  has_many :request_services,
-           class_name: "RequestService",
-           foreign_key: :beam_type_id,
-           dependent: :restrict_with_exception
-  has_many :requests,
-           through: :request_services
+  # Return only available services. If there is no `active` column, fall back to all.
+  scope :available, -> {
+    column_names.include?('active') ? where(active: true) : all
+  }
 
-  # Доступные материалы для балок
-  MATERIALS = {
-    wood: "wood",
-    steel: "steel",
-    reinforced_concrete: "reinforced_concrete",
-    composite: "composite"
-  }.freeze
+  # Backward-compat alias used by some controllers
+  def self.available_scope
+    available
+  end
+  
+  validates :name, 
+            presence: true, 
+            uniqueness: { case_sensitive: false }
+  validates :material, 
+            presence: true,
+            inclusion: { in: MATERIALS, message: "must be one of: #{MATERIALS.join(', ')}" }
+  validates :elasticity_gpa, 
+            presence: true,
+            numericality: { greater_than: 0 }
+  validates :inertia_cm4, 
+            presence: true,
+            numericality: { greater_than: 0 }
+  validates :allowed_deflection_ratio, 
+            numericality: { greater_than: 0 }, 
+            allow_nil: true
 
-  # Скоупы для фильтрации по статусу
-  scope :active,   -> { all }  # Временно убираем deleted_at фильтр
-  scope :deleted,  -> { none } # Временно возвращает пустой scope
-
-  # Скоупы для фильтрации по материалу
-  scope :material_wood,                -> { where(material: MATERIALS[:wood]) }
-  scope :material_steel,               -> { where(material: MATERIALS[:steel]) }
-  scope :material_reinforced_concrete, -> { where(material: MATERIALS[:reinforced_concrete]) }
-  scope :material_composite,           -> { where(material: MATERIALS[:composite]) }
-
-  # Валидации
-  validates :name, :material, :elasticity_gpa, :norm, presence: true
-  validates :material, inclusion: { in: MATERIALS.values }
-  validates :elasticity_gpa,
-            numericality: { greater_than: 0,
-                           message: 'должно быть больше 0' }      # GPa
-  validates :norm,
-            numericality: { greater_than_or_equal_to: 0,
-                           message: 'не может быть отрицательным' } # mm
-
-  # Методы для проверки материала балки (например: service.material_steel?)
-  MATERIALS.each do |key, val|
-    define_method("material_#{key}?") { material == val }
+  # --- Compatibility aliases for legacy templates ---
+  def e_gpa
+    # return number (GPa) or nil
+    self[:elasticity_gpa]
   end
 
-  # Метод для "мягкого" удаления
-  def soft_delete
-    update_column(:deleted_at, Time.current)
+  def norm
+    # return string like "L/250" if ratio present, otherwise nil
+    r = self[:allowed_deflection_ratio]
+    r.present? ? "L/#{r}" : nil
   end
-
-  # Метод для восстановления
-  def restore
-    update_column(:deleted_at, nil)
+  
+  scope :active, -> { where(active: true) if column_names.include?('active') }
+  
+  def material_name
+    material&.humanize
   end
-
-  # Проверка, удалена ли запись
-  def deleted?
-    deleted_at.present?
+  
+  def deactivate!
+    update!(active: false)
+  end
+  
+  def activate!
+    update!(active: true)
   end
 end

@@ -1,0 +1,60 @@
+<% unless @draft %>
+  <div class="alert alert-info" style="text-align: center; padding: 20px; margin: 20px; border-radius: 8px; background: #e3f2fd; color: #0c5460;">
+    <p style="margin: 0 0 15px 0;">Текущей заявки нет.</p>
+    <%= link_to "К услугам", services_path, class: "btn btn--primary" %>
+  </div>
+<% else %>
+  <div class="order-container">
+    <h1 class="page-title">Оставить заявку</h1>
+    <p>ID заявки: <%= @draft.id %></p>
+
+    <div class="order-toolbar">
+      <div class="order-customer">
+        <label for="customer_name">Заказчик</label>
+        <input type="text" id="customer_name" name="customer_name" value="demo@local" />
+      </div>
+
+      <div class="order-actions">
+        <%= form_with url: delete_cart_path, method: :post, local: true do |f| %>
+          <%= submit_tag "Удалить заявку", 
+                       class: "btn btn--danger",
+                       data: { confirm: "Вы уверены, что хотите удалить заявку?" } %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @items.any? %>
+      <div class="order-grid">
+        <% @items.each do |item| %>
+          <% s = item.service %>
+          <div class="order-card">
+            <div class="card-thumb">
+              <%= image_tag minio_image_url(s.image_url), alt: s.name %>
+            </div>
+
+            <div class="card-body">
+              <h3><%= s.name %></h3>
+              <p class="meta">
+                Материал: <%= s.material %> · Модуль E: <%= s.elasticity_gpa %> ГПа · Норма: L/<%= s.allowed_deflection_ratio %>
+              </p>
+
+              <div class="inputs">
+                <label>
+                  <span>Длина, м</span>
+                  <input type="number" step="0.1" value="3.0" />
+                </label>
+                <label>
+                  <span>Нагрузка q, кН/м</span>
+                  <input type="number" step="0.1" value="10.0" />
+                </label>
+                <div class="qty">× <%= item.quantity %></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty">В заявке пока нет услуг.</p>
+    <% end %>
+  </div>
+<% end %>

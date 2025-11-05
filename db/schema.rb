@@ -10,71 +10,80 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_161444) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_05_010100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "beam_types", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "material", null: false
-    t.integer "elasticity_gpa", null: false
-    t.string "norm", null: false
-    t.string "image_key"
-    t.boolean "archived", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["archived"], name: "index_beam_types_on_archived"
-    t.index ["name"], name: "index_beam_types_on_name"
-  end
-
-  create_table "load_forecasts", force: :cascade do |t|
-    t.integer "status", default: 0, null: false
-    t.integer "requester_id", null: false
-    t.integer "engineer_id"
+  create_table "requests", force: :cascade do |t|
+    t.string "status", default: "draft", null: false
+    t.bigint "creator_id", null: false
+    t.bigint "moderator_id"
     t.datetime "formed_at"
     t.datetime "completed_at"
-    t.decimal "length_m", precision: 10, scale: 3
-    t.decimal "load_kN_m", precision: 10, scale: 3
-    t.decimal "result_mm", precision: 10, scale: 3
+    t.decimal "length_m", precision: 8, scale: 3
+    t.decimal "udl_kn_m", precision: 8, scale: 3
+    t.decimal "deflection_mm", precision: 10, scale: 3
+    t.boolean "within_norm"
+    t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "moderator_id"
-    t.index ["moderator_id"], name: "idx_load_forecasts_moderator_id"
-    t.index ["requester_id"], name: "idx_load_forecasts_one_draft_per_user", unique: true, where: "(status = 0)"
-    t.index ["requester_id"], name: "index_load_forecasts_on_requester_id"
+    t.decimal "result_deflection_mm", precision: 18, scale: 6
+    t.datetime "calculated_at"
+    t.index ["creator_id"], name: "idx_requests_single_draft_per_user", unique: true, where: "((status)::text = 'draft'::text)"
+    t.index ["creator_id"], name: "index_requests_on_creator_id"
+    t.index ["moderator_id"], name: "index_requests_on_moderator_id"
+    t.index ["status", "creator_id"], name: "index_requests_on_status_and_creator_id"
+    t.check_constraint "length_m > 0::numeric", name: "check_length_positive"
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'deleted'::character varying::text, 'formed'::character varying::text, 'completed'::character varying::text, 'rejected'::character varying::text])", name: "check_status"
+    t.check_constraint "udl_kn_m >= 0::numeric", name: "check_udl_non_negative"
   end
 
-  create_table "load_forecasts_beam_types", force: :cascade do |t|
-    t.bigint "load_forecast_id", null: false
-    t.bigint "beam_type_id", null: false
+  create_table "requests_services", force: :cascade do |t|
+    t.bigint "request_id", null: false
+    t.bigint "service_id", null: false
     t.integer "quantity", default: 1, null: false
-    t.integer "position", null: false
+    t.integer "position", default: 1, null: false
     t.boolean "primary", default: false, null: false
-    t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "length_m", precision: 6, scale: 2, default: "3.0", null: false
-    t.decimal "load_kn_m", precision: 6, scale: 2, default: "10.0", null: false
-    t.datetime "deleted_at", precision: nil
-    t.index ["beam_type_id"], name: "index_load_forecasts_beam_types_on_beam_type_id"
-    t.index ["deleted_at"], name: "index_load_forecasts_beam_types_on_deleted_at"
-    t.index ["load_forecast_id", "beam_type_id", "length_m", "load_kn_m"], name: "idx_lfbt_unique", unique: true
-    t.index ["load_forecast_id"], name: "index_load_forecasts_beam_types_on_load_forecast_id"
-    t.check_constraint "quantity > 0 AND \"position\" > 0", name: "chk_lfbt_quantity_position_pos"
+    t.boolean "is_primary", default: false, null: false
+    t.decimal "deflection_mm", precision: 18, scale: 6
+    t.index ["request_id", "service_id"], name: "idx_requests_services_unique", unique: true
+    t.index ["request_id", "service_id"], name: "index_requests_services_on_request_and_service", unique: true
+    t.check_constraint "\"position\" > 0", name: "check_position_positive"
+    t.check_constraint "quantity > 0", name: "check_quantity_positive"
+  end
+
+  create_table "services", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.string "image_url"
+    t.string "material", null: false
+    t.decimal "elasticity_gpa", precision: 6, scale: 2, null: false
+    t.decimal "inertia_cm4", precision: 12, scale: 2, null: false
+    t.integer "allowed_deflection_ratio", default: 250, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_services_on_active"
+    t.index ["name"], name: "index_services_on_name", unique: true
+    t.check_constraint "allowed_deflection_ratio > 0", name: "check_deflection_ratio_positive"
+    t.check_constraint "elasticity_gpa > 0::numeric", name: "check_elasticity_positive"
+    t.check_constraint "inertia_cm4 > 0::numeric", name: "check_inertia_positive"
+    t.check_constraint "material::text = ANY (ARRAY['wooden'::character varying::text, 'steel'::character varying::text, 'reinforced_concrete'::character varying::text])", name: "check_material"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
-    t.boolean "is_moderator", default: false, null: false
+    t.boolean "moderator", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "idx_users_email_unique", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "load_forecasts", "users", column: "moderator_id"
-  add_foreign_key "load_forecasts", "users", column: "requester_id"
-  add_foreign_key "load_forecasts_beam_types", "beam_types", on_delete: :restrict
-  add_foreign_key "load_forecasts_beam_types", "load_forecasts", on_delete: :restrict
+  add_foreign_key "requests", "users", column: "creator_id", on_delete: :restrict
+  add_foreign_key "requests", "users", column: "moderator_id", on_delete: :nullify
+  add_foreign_key "requests_services", "requests", on_delete: :restrict
+  add_foreign_key "requests_services", "services", on_delete: :restrict
 end

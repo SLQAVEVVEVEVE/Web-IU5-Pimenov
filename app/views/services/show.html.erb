@@ -1,9 +1,52 @@
-<h1 class="page-title"><%= @service.name %></h1>
+<div class="container">
+  <h1 class="page-title"><%= @service.name %></h1>
+  
+  <div class="card" style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 24px;">
+    <%# Service Image - using the same minio_image_url helper as in index %>
+    <div class="card__thumb-wrap" style="width: 240px; height: 240px; margin-bottom: 24px;">
+      <%= image_tag minio_image_url(@service.image_url),
+                   alt: @service.name,
+                   class: "card__thumb" %>
+    </div>
 
-<article class="card card-lg" style="margin:0 auto;max-width:920px;">
-  <img class="thumb-lg" src="<%= image_url_for(@service.image_key) %>" alt="Изображение: <%= @service.name %>">
-  <div>
-    <p class="meta">Материал: <%= @service.material %> · Модуль упругости: <%= @service.elasticity_gpa %> ГПа · Норма: <%= @service.norm %></p>
-    <p style="font-size:var(--body);line-height:var(--body-lh)"><%= @service.description %></p>
+    <div style="width: 100%;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Материал</div>
+          <div style="font-weight: 500;"><%= @service.material %></div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Модуль упругости</div>
+          <div style="font-weight: 500;"><%= number_with_precision(@service.elasticity_gpa, precision: 1) %> ГПа</div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Момент инерции</div>
+          <div style="font-weight: 500;"><%= number_with_precision(@service.inertia_cm4, precision: 2) %> см⁴</div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Норма прогиба</div>
+          <div style="font-weight: 500;">L/<%= @service.allowed_deflection_ratio %></div>
+        </div>
+      </div>
+
+      <% if @service.description.present? %>
+        <div style="background: white; padding: 16px; border-radius: 8px; margin: 24px 0;">
+          <h3 style="margin: 0 0 12px; font-size: 18px;">Описание</h3>
+          <div style="line-height: 1.6;"><%= simple_format @service.description %></div>
+        </div>
+      <% end %>
+
+      <div class="card__actions" style="margin-top: 24px;">
+        <%= link_to services_path, class: "btn btn--secondary" do %>
+          <span>Назад к типам</span>
+        <% end %>
+        
+        <%= form_with url: cart_items_path, method: :post, local: true do |f| %>
+          <%= hidden_field_tag :service_id, @service.id %>
+          <%= hidden_field_tag :quantity, 1 %>
+          <%= submit_tag "В заявку", class: "btn btn--primary" %>
+        <% end %>
+      </div>
+    </div>
   </div>
-</article>
+</div>

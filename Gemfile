@@ -10,12 +10,15 @@ gem "puma", ">= 5.0"
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
-#Посгря
-gem "pg"
-
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
+gem 'activerecord', '~> 8.0.3'
+
+# Use PostgreSQL as the database
+# The default database adapter in the Gemfile is sqlite3 for development and test
+# We'll use PostgreSQL for all environments
+gem 'pg', '~> 1.5'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -28,6 +31,9 @@ gem "kamal", require: false
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
+
+# AWS SDK for S3 (used for MinIO integration)
+gem "aws-sdk-s3", require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
