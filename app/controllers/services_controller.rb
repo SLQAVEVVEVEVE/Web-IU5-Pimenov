@@ -23,8 +23,8 @@ class ServicesController < ApplicationController
 
   # GET /services/:id
   def show
-    @service = Service.available_scope.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
+    @service = Service.available.find(params[:id])
+  rescue ActiveRecord::RecordNotFound, ArgumentError
     redirect_to services_path, alert: "Услуга недоступна."
   end
 end

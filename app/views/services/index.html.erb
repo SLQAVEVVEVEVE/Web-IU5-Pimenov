@@ -13,7 +13,7 @@
     <% @services.each do |s| %>
       <div class="card card--grid">
         <div class="card__thumb-wrap">
-          <%= image_tag minio_image_url(s.image_url), alt: s.name, class: "card__thumb" %>
+          <%= image_url_for(s.image_key, alt: s.name, class: "card__thumb") %>
         </div>
         <div class="card__body">
           <h3 class="card__title"><%= s.name %></h3>

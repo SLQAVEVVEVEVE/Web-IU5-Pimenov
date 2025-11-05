@@ -20,6 +20,13 @@ gem 'activerecord', '~> 8.0.3'
 # We'll use PostgreSQL for all environments
 gem 'pg', '~> 1.5'
 
+# JWT for token-based authentication
+gem 'jwt'
+# For handling JWT in Rails
+gem 'jwt_sessions', '~> 3.2.4'
+# For pagination
+gem 'kaminari'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
@@ -33,7 +40,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # AWS SDK for S3 (used for MinIO integration)
-gem "aws-sdk-s3", require: false
+gem 'aws-sdk-s3', '~> 1.0', require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -50,3 +57,5 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+gem "pundit", "~> 2.5"

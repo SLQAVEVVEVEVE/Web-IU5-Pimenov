@@ -1,23 +1,78 @@
 class Request < ApplicationRecord
-  STATUSES = {
-    draft:     "draft",
-    deleted:   "deleted",
-    formed:    "formed",
-    completed: "completed",
-    rejected:  "rejected"
-  }.freeze
-
-  belongs_to :creator, class_name: 'User'
-  belongs_to :moderator, class_name: 'User', optional: true
+  include RequestScopes
   
-  has_many :requests_services, dependent: :restrict_with_error
+  # Constants moved to RequestScopes
+  STATUSES = RequestScopes::STATUSES
+  
+  # Associations
+  belongs_to :creator, 
+             class_name: 'User', 
+             foreign_key: :creator_id, 
+             inverse_of: :requests
+             
+  belongs_to :moderator, 
+             class_name: 'User', 
+             foreign_key: :moderator_id, 
+             optional: true, 
+             inverse_of: :moderated_requests
+  
+  has_many :requests_services, dependent: :destroy
   has_many :services, through: :requests_services
   
-  # Status must be one of the allowed values
-  validates :status, inclusion: { in: STATUSES.values }
-
-  # SUBJECT FIELDS — optional at insert time
-  # (filled later by the user / on completion). Allow nil.
+  # Validations
+  validates :status, presence: true, inclusion: { in: STATUSES.values }
+  validates :creator_id, presence: true
+  validates :length_m, :udl_kn_m, numericality: { greater_than: 0 }, allow_nil: true
+  
+  # Callbacks
+  before_validation :set_default_status, on: :create
+  
+  # Status predicate methods are now in RequestScopes
+  
+  # Scopes are now in RequestScopes
+  
+  # Class methods
+  def self.ensure_draft_for(user)
+    draft_for(user).first_or_create! do |request|
+      request.creator = user
+    end
+  end
+  
+  # Instance methods
+  def can_form_by?(user)
+    creator == user && draft?
+  end
+  
+  def can_complete_by?(user)
+    user.moderator? && formed?
+  end
+  
+  def can_reject_by?(user)
+    user.moderator? && formed?
+  end
+  
+  def compute_result!
+    total_deflection = 0.0
+    
+    requests_services.each do |rs|
+      rs.deflection_mm = Calc::Deflection.call(self, rs.service)
+      rs.save!
+      total_deflection += rs.deflection_mm * rs.quantity
+    end
+    
+    update!(result_deflection_mm: total_deflection)
+    total_deflection
+  end
+  
+  def calculated_items_count
+    result_deflection_mm.presence || requests_services.where.not(deflection_mm: nil).count
+  end
+  
+  private
+  
+  def set_default_status
+    self.status ||= STATUSES[:draft]
+  end
   validates :length_m, numericality: { greater_than: 0 }, allow_nil: true
   validates :udl_kn_m, numericality: { greater_than: 0 }, allow_nil: true
   validates :deflection_mm,
@@ -37,6 +92,7 @@ class Request < ApplicationRecord
   def formed? = status == STATUSES[:formed]
   def completed? = status == STATUSES[:completed]
   def rejected? = status == STATUSES[:rejected]
+  public :draft?, :deleted?, :formed?, :completed?, :rejected?
   
   def mark_as_formed!(moderator: nil)
     update!(

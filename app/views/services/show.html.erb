@@ -4,9 +4,7 @@
   <div class="card" style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 24px;">
     <%# Service Image - using the same minio_image_url helper as in index %>
     <div class="card__thumb-wrap" style="width: 240px; height: 240px; margin-bottom: 24px;">
-      <%= image_tag minio_image_url(@service.image_url),
-                   alt: @service.name,
-                   class: "card__thumb" %>
+      <%= image_url_for(@service.image_key, alt: @service.name, class: "card__thumb") %>
     </div>
 
     <div style="width: 100%;">

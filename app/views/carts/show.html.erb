@@ -29,7 +29,7 @@
           <% s = item.service %>
           <div class="order-card">
             <div class="card-thumb">
-              <%= image_tag minio_image_url(s.image_url), alt: s.name %>
+              <%= image_url_for(s.image_key, alt: s.name, class: "card__thumb") %>
             </div>
 
             <div class="card-body">

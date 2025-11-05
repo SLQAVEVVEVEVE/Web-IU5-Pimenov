@@ -1,35 +1,44 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user, :current_draft
+  before_action :set_current_user
   before_action :set_cart_state
   helper MinioHelper
   
   private
   
+  def set_current_user
+    Current.user = current_user if current_user
+  end
+  
   def current_user
-    # Dev stub; replace with real auth later
-    @current_user ||= User.first || User.create!(
-      email: "dev@example.com", 
+    # For API requests, we'll use the token-based auth
+    return @current_user if defined?(@current_user)
+    
+    # For web interface, fall back to the first user or create a demo user
+    @current_user = User.first || User.create!(
+      email: "demo@local",
       password: "password",
       password_confirmation: "password"
     )
   end
   
   def current_draft
-    @current_draft ||= Request.find_by(creator_id: current_user.id, status: "draft")
+    @current_draft ||= current_user.requests.draft.first_or_create! do |req|
+      req.status = :draft
+    end
   end
   
   def set_cart_state
-    draft = current_draft
-    @cart_available = draft.present?
-    @cart_items_count = draft ? draft.requests_services.sum(:quantity) : 0
-    
-    # For backward compatibility with existing views
-    @order = { items: draft ? draft.requests_services.map { |rs| { qty: rs.quantity } } : [] }
-    @basket_count = @cart_items_count
+    @cart_services_count = current_draft.requests_services.sum(:quantity)
   end
   
-  def require_user
-    current_user || head(:unauthorized)
+  def require_login
+    unless current_user
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Please log in first" }
+        format.json { render json: { error: "Please log in first" }, status: :unauthorized }
+      end
+    end
   end
 end
 

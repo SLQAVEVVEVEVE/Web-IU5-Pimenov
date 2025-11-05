@@ -1,25 +1,23 @@
 class Service < ApplicationRecord
+  include ServiceScopes
+  
+  # Constants
   MATERIALS = %w[wooden steel reinforced_concrete].freeze
   
-  has_many :requests_services, dependent: :restrict_with_error
+  # Associations
+  has_many :requests_services, dependent: :destroy
   has_many :requests, through: :requests_services
-
-  # Return only available services. If there is no `active` column, fall back to all.
-  scope :available, -> {
-    column_names.include?('active') ? where(active: true) : all
-  }
-
-  # Backward-compat alias used by some controllers
-  def self.available_scope
-    available
-  end
   
+  # Validations
   validates :name, 
             presence: true, 
             uniqueness: { case_sensitive: false }
   validates :material, 
-            presence: true,
-            inclusion: { in: MATERIALS, message: "must be one of: #{MATERIALS.join(', ')}" }
+            inclusion: { 
+              in: MATERIALS, 
+              message: "must be one of: #{MATERIALS.join(', ')}" 
+            },
+            allow_nil: true
   validates :elasticity_gpa, 
             presence: true,
             numericality: { greater_than: 0 }
@@ -29,6 +27,39 @@ class Service < ApplicationRecord
   validates :allowed_deflection_ratio, 
             numericality: { greater_than: 0 }, 
             allow_nil: true
+  validates :active, 
+            inclusion: { in: [true, false] }
+  
+  # Callbacks
+  before_validation :set_default_active, on: :create
+  
+  # Scopes
+  scope :available, -> { where(active: true) }
+  # Temporary alias for backward compatibility - can be removed after updating all usages
+  scope :available_scope, -> { available }
+  
+  # Scopes from ServiceScopes concern
+  
+  # Instance methods
+  # Backward-compatible image handling
+  def image_key
+    self[:image_key] || self[:image_url]
+  end
+  
+  # For backward compatibility with old views
+  def image_url
+    image_key
+  end
+  
+  def soft_delete
+    update(active: false)
+  end
+  
+  private
+  
+  def set_default_active
+    self.active = true if active.nil?
+  end
 
   # --- Compatibility aliases for legacy templates ---
   def e_gpa

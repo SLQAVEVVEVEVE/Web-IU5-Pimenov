@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_05_010100) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,8 +31,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_010100) do
     t.datetime "calculated_at"
     t.index ["creator_id"], name: "idx_requests_single_draft_per_user", unique: true, where: "((status)::text = 'draft'::text)"
     t.index ["creator_id"], name: "index_requests_on_creator_id"
+    t.index ["formed_at"], name: "index_requests_on_formed_at"
     t.index ["moderator_id"], name: "index_requests_on_moderator_id"
     t.index ["status", "creator_id"], name: "index_requests_on_status_and_creator_id"
+    t.index ["status"], name: "index_requests_on_status"
     t.check_constraint "length_m > 0::numeric", name: "check_length_positive"
     t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'deleted'::character varying::text, 'formed'::character varying::text, 'completed'::character varying::text, 'rejected'::character varying::text])", name: "check_status"
     t.check_constraint "udl_kn_m >= 0::numeric", name: "check_udl_non_negative"
@@ -50,6 +52,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_010100) do
     t.decimal "deflection_mm", precision: 18, scale: 6
     t.index ["request_id", "service_id"], name: "idx_requests_services_unique", unique: true
     t.index ["request_id", "service_id"], name: "index_requests_services_on_request_and_service", unique: true
+    t.index ["request_id", "service_id"], name: "index_requests_services_on_request_id_and_service_id", unique: true
     t.check_constraint "\"position\" > 0", name: "check_position_positive"
     t.check_constraint "quantity > 0", name: "check_quantity_positive"
   end
@@ -65,6 +68,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_010100) do
     t.integer "allowed_deflection_ratio", default: 250, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "image_key"
     t.index ["active"], name: "index_services_on_active"
     t.index ["name"], name: "index_services_on_name", unique: true
     t.check_constraint "allowed_deflection_ratio > 0", name: "check_deflection_ratio_positive"
