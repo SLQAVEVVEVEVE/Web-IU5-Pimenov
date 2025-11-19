@@ -1,5 +1,6 @@
 module Api
   class ServicesController < BaseController
+    include MinioHelper
     before_action :set_service, only: [:show, :update, :destroy, :add_to_draft, :image]
     
     def index
@@ -86,13 +87,13 @@ module Api
       filename = "#{@service.name.to_s.parameterize}-#{SecureRandom.uuid}#{extension}"
 
       begin
-        MinioHelper.delete_object(@service.image_key) if @service.image_key.present?
-        image_key = MinioHelper.upload_file(upload, filename)
+        minio_delete(@service.image_key) if @service.image_key.present?
+        image_key = minio_upload(upload, key: filename, content_type: upload.content_type)
 
         if @service.update(image_key: image_key)
-          render json: { image_url: MinioHelper.image_url_for(image_key), image_key: image_key }
+          render json: { image_url: minio_image_url(image_key), image_key: image_key }
         else
-          MinioHelper.delete_object(image_key) rescue nil
+          minio_delete(image_key) rescue nil
           render_error(@service.errors.full_messages, :unprocessable_entity)
         end
       rescue => e

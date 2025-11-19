@@ -177,17 +177,15 @@ module Api
 
     def serialize_request(r)
       items = r.requests_services.includes(:service).map do |rs|
+        service = rs.service
         {
           service_id: rs.service_id,
+          service_name: service&.name,
+          service_material: service&.material,
+          service_image_url: service&.respond_to?(:image_url) ? service&.image_url : service&.try(:image_key),
           quantity: rs.quantity,
           position: rs.position,
-          deflection_mm: rs.deflection_mm,
-          service: {
-            id: rs.service.id,
-            name: rs.service.name,
-            material: rs.service.material,
-            image_url: rs.service.respond_to?(:image_url) ? rs.service.image_url : rs.service.image_key
-          }
+          deflection_mm: rs.deflection_mm
         }
       end
 

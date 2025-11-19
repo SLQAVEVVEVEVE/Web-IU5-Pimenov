@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class JwtToken
-  SECRET_KEY = Rails.application.credentials.secret_key_base
+  SECRET_KEY = ENV['SECRET_KEY_BASE'] || Rails.application.secret_key_base || Rails.application.credentials.secret_key_base
   ALGORITHM = 'HS256'.freeze
   EXPIRATION = 24.hours
 

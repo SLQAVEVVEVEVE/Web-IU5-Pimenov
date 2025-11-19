@@ -1,5 +1,6 @@
 module Api
   class AuthController < BaseController
+    skip_before_action :authenticate_request, only: [:sign_in, :sign_up]
     
     def sign_in
       creds = login_params

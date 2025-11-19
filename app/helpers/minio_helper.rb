@@ -123,11 +123,13 @@ module MinioHelper
   def s3_client
     cfg = Rails.application.config.x.minio
 
+    endpoint = cfg[:endpoint] || cfg[:internal_endpoint]
+
     @s3_client ||= Aws::S3::Client.new(
-      access_key_id: cfg.access_key,
-      secret_access_key: cfg.secret_key,
-      region: cfg.region,
-      endpoint: cfg.endpoint,
+      access_key_id: cfg[:access_key],
+      secret_access_key: cfg[:secret_key],
+      region: cfg[:region],
+      endpoint: endpoint,
       force_path_style: true
     )
   end
@@ -135,7 +137,8 @@ module MinioHelper
   # Returns the S3 bucket instance
   # @return [Aws::S3::Bucket] the bucket instance
   def s3_bucket
-    @s3_bucket ||= s3_resource.bucket(Rails.application.config.x.minio.bucket)
+    cfg = Rails.application.config.x.minio
+    @s3_bucket ||= s3_resource.bucket(cfg[:bucket])
   end
 
   # Returns an S3 object for the given key
