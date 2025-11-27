@@ -1,39 +1,23 @@
 module Api
   class AuthController < BaseController
     skip_before_action :authenticate_request, only: [:sign_in, :sign_up]
+    before_action :require_auth!, only: [:sign_out, :me]
     
     def sign_in
-      creds = login_params
-      user = User.find_by(email: creds[:email])
-      
-      if user&.authenticate(creds[:password])
-        token = generate_token(user)
-        render json: { 
-          token: token,
-          user: {
-            id: user.id,
-            email: user.email,
-            moderator: user.moderator?
-          }
-        }
+      user = User.find_by(email: login_params[:email])
+
+      if user&.authenticate(login_params[:password])
+        render_token_response(user)
       else
-        render json: { error: 'Invalid email or password' }, status: :unauthorized
+        render_error('Invalid email or password', :unauthorized)
       end
     end
     
     def sign_up
       user = User.new(signup_params)
-      
+
       if user.save
-        token = generate_token(user)
-        render json: { 
-          token: token,
-          user: {
-            id: user.id,
-            email: user.email,
-            moderator: user.moderator?
-          }
-        }, status: :created
+        render_token_response(user, :created)
       else
         render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
       end
@@ -45,41 +29,46 @@ module Api
     end
     
     def me
-      render json: {
-        id: current_user.id,
-        email: current_user.email,
-        moderator: current_user.moderator?
-      }
+      render json: user_payload(Current.user)
     end
     
     private
     
     def login_params
-      if params[:user].is_a?(ActionController::Parameters)
-        params.require(:user).permit(:email, :password)
-      else
-        params.permit(:email, :password)
+      base = params[:user].is_a?(ActionController::Parameters) ? params.require(:user) : params
+      base.permit(:email, :password).tap do |whitelisted|
+        whitelisted[:email] = whitelisted[:email].to_s.downcase
       end
     end
 
     def signup_params
-      if params[:user].is_a?(ActionDispatch::Http::UploadedFile)
-        # never happens here; keep normal branch
-        params.permit(:email, :password, :password_confirmation)
-      elsif params[:user].is_a?(ActionController::Parameters)
-        params.require(:user).permit(:email, :password, :password_confirmation)
-      else
-        params.permit(:email, :password, :password_confirmation)
-      end
+      base = params[:user].is_a?(ActionController::Parameters) ? params.require(:user) : params
+      permitted = base.permit(:email, :password, :password_confirmation)
+      permitted[:email] = permitted[:email].to_s.downcase
+      permitted
     end
-    
-    def generate_token(user)
-      payload = {
+
+    def render_token_response(user, status = :ok)
+      render json: {
+        token: JwtToken.encode(token_payload(user)),
+        user: user_payload(user)
+      }, status: status
+    end
+
+    def token_payload(user)
+      {
         user_id: user.id,
         email: user.email,
         exp: 24.hours.from_now.to_i
       }
-      JwtToken.encode(payload)
+    end
+
+    def user_payload(user)
+      {
+        id: user.id,
+        email: user.email,
+        moderator: user.moderator?
+      }
     end
   end
 end

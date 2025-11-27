@@ -1,13 +1,18 @@
 module Api
   class RequestsController < BaseController
+    before_action :require_auth!
     before_action :set_request, only: [:show, :update, :form, :complete, :reject, :destroy]
+    before_action :authorize_view!, only: [:show]
     before_action :check_owner, only: [:update, :form, :destroy]
-    before_action :check_moderator, only: [:complete, :reject]
+    before_action :require_moderator!, only: [:complete, :reject]
 
     # GET /api/requests
     # List excluding draft and deleted. Filters: status (array or single), formed_at from/to.
     def index
       scope = Request.not_deleted.not_draft.includes(:creator, :moderator, :requests_services)
+      unless Current.user&.moderator?
+        scope = scope.where(creator_id: Current.user.id)
+      end
       statuses = Array(params[:status]).presence
       scope = scope.by_statuses(statuses) if statuses
 
@@ -77,10 +82,6 @@ module Api
     # PUT /api/requests/:id/form
     def form
       # Ensure draft ownership for LR3
-      if @request.draft? && @request.creator != Current.user
-        @request.update(creator: Current.user)
-      end
-
       return render_error('Request must be in draft status', :unprocessable_entity) unless @request.draft?
       return render_error('Not authorized', :forbidden) unless @request.creator == Current.user
 
@@ -96,9 +97,6 @@ module Api
 
     # PUT /api/requests/:id/complete
     def complete
-      unless Current.user&.moderator?
-        return render_error('Moderator access required', :forbidden)
-      end
       unless @request.formed?
         return render_error('Request must be in formed status', :unprocessable_entity)
       end
@@ -163,16 +161,15 @@ module Api
     end
 
     def check_owner
-      if @request.draft? && @request.creator != Current.user
-        @request.update(creator: Current.user)
-      end
       return if @request.creator == Current.user
+
       render_error('Not authorized', :forbidden)
     end
 
-    def check_moderator
-      return if Current.user&.moderator?
-      render_error('Moderator access required', :forbidden)
+    def authorize_view!
+      return if Current.user&.moderator? || @request.creator == Current.user
+
+      render_error('Not authorized', :forbidden)
     end
 
     def serialize_request(r)

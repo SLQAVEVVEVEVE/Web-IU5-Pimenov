@@ -16,20 +16,15 @@ module Api
 
     def authenticate_request
       token = bearer_token
+      return if token.blank?
 
-      if token.present?
-        payload = JwtToken.decode(token)
-        user = payload && User.find_by(id: payload[:user_id])
-        if user
-          assign_current_user(user)
-          return
-        else
-          return render_error('Invalid or expired token', :unauthorized)
-        end
-      end
+      payload = JwtToken.decode(token)
+      return render_error('Invalid or expired token', :unauthorized) unless payload
 
-      # No token provided: fall back to demo user for LR3 compatibility
-      assign_current_user(User.demo_user)
+      user = User.find_by(id: payload[:user_id])
+      return render_error('Invalid or expired token', :unauthorized) unless user
+
+      assign_current_user(user)
     end
 
     def bearer_token
@@ -48,7 +43,19 @@ module Api
     end
 
     def current_user
-      @current_user
+      @current_user ||= Current.user
+    end
+
+    def require_auth!
+      return if Current.user.present?
+
+      render_error('Authentication required', :unauthorized)
+    end
+
+    def require_moderator!
+      return if Current.user&.moderator?
+
+      render_error('Moderator access required', :forbidden)
     end
 
     def render_error(message, status)

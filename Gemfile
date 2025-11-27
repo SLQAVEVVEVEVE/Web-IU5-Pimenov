@@ -8,9 +8,13 @@ gem "propshaft"
 gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
-# Use Redis adapter to run Action Cable in production
-# gem "redis", ">= 4.0.1"
+# Redis-backed session/cache store
+gem "redis", "~> 5.0"
 
+# Swagger/OpenAPI documentation
+gem "rswag-api"
+gem "rswag-ui"
+gem "rswag-specs"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 gem 'activerecord', '~> 8.0.3'
@@ -51,6 +55,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Testing framework
+  gem "rspec-rails", "~> 7.1"
 end
 
 group :development do

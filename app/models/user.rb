@@ -22,16 +22,8 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6 }, if: -> { password.present? }
   validates :password_confirmation, presence: true, on: :create
   
-  # Class methods
-  def self.demo_user
-    find_or_create_by!(email: "demo@local") do |u|
-      u.password = SecureRandom.hex(8)
-      u.moderator = false
-    end
-  end
-
-  # LR3: consider demo user as moderator to simplify testing moderator-only actions
+  # Moderator flag helper (no implicit demo user)
   def moderator?
-    self[:moderator] || email == 'demo@local'
+    self[:moderator]
   end
 end

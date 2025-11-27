@@ -1,5 +1,7 @@
 module Api
   class MeController < BaseController
+    before_action :require_auth!
+
     def show
       render json: current_user_payload
     end

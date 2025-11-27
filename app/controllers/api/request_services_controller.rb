@@ -1,5 +1,6 @@
 module Api
   class RequestServicesController < Api::BaseController
+    before_action :require_auth!
     before_action :ensure_draft_request
     before_action :set_request_service, only: [:update, :destroy]
 

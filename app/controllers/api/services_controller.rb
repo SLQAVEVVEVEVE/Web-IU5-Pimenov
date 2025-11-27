@@ -2,6 +2,8 @@ module Api
   class ServicesController < BaseController
     include MinioHelper
     before_action :set_service, only: [:show, :update, :destroy, :add_to_draft, :image]
+    before_action :require_auth!, except: [:index, :show]
+    before_action :require_moderator!, only: [:create, :update, :destroy, :image]
     
     def index
       # default: only active services; pass active=false to include inactive

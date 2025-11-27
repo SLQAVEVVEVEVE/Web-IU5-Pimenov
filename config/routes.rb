@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  mount Rswag::Api::Engine => '/api-json'
+  mount Rswag::Ui::Engine => '/api-docs'
+
   # API routes
   namespace :api do
     # Service domain
