@@ -38,5 +38,8 @@ module App
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    
+    # Allow all hosts in test environment (for Swagger integration tests)
+    config.hosts << "www.example.com" if Rails.env.test?
   end
 end

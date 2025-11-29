@@ -1,7 +1,7 @@
 <% unless @draft %>
   <div class="alert alert-info" style="text-align: center; padding: 20px; margin: 20px; border-radius: 8px; background: #e3f2fd; color: #0c5460;">
     <p style="margin: 0 0 15px 0;">Текущей заявки нет.</p>
-    <%= link_to "К услугам", services_path, class: "btn btn--primary" %>
+    <%= link_to "К балкам", beams_path, class: "btn btn--primary" %>
   </div>
 <% else %>
   <div class="order-container">
@@ -26,16 +26,16 @@
     <% if @items.any? %>
       <div class="order-grid">
         <% @items.each do |item| %>
-          <% s = item.service %>
+          <% b = item.beam %>
           <div class="order-card">
             <div class="card-thumb">
-              <%= image_url_for(s.image_key, alt: s.name, class: "card__thumb") %>
+              <%= image_url_for(b.image_key, alt: b.name, class: "card__thumb") %>
             </div>
 
             <div class="card-body">
-              <h3><%= s.name %></h3>
+              <h3><%= b.name %></h3>
               <p class="meta">
-                Материал: <%= s.material %> · Модуль E: <%= s.elasticity_gpa %> ГПа · Норма: L/<%= s.allowed_deflection_ratio %>
+                Материал: <%= b.material %> · Модуль E: <%= b.elasticity_gpa %> ГПа · Норма: L/<%= b.allowed_deflection_ratio %>
               </p>
 
               <div class="inputs">
@@ -54,7 +54,7 @@
         <% end %>
       </div>
     <% else %>
-      <p class="empty">В заявке пока нет услуг.</p>
+      <p class="empty">В заявке пока нет балок.</p>
     <% end %>
   </div>
 <% end %>

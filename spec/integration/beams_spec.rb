@@ -2,31 +2,35 @@
 
 require 'swagger_helper'
 
-describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
+describe 'Beams API', swagger_doc: 'v1/swagger.yaml' do
   let(:moderator) do
-    User.create!(email: 'mod@example.com', password: 'secret123', password_confirmation: 'secret123', moderator: true)
+    User.find_or_create_by!(email: 'mod@example.com') do |u|
+      u.password = 'secret123'
+      u.password_confirmation = 'secret123'
+      u.moderator = true
+    end
   end
 
   let(:moderator_token) do
     "Bearer #{JwtToken.encode(user_id: moderator.id, exp: 2.hours.from_now.to_i)}"
   end
 
-  path '/api/services' do
-    get 'List services (public)' do
-      tags 'Services'
+  path '/api/beams' do
+    get 'List beams (public)' do
+      tags 'Beams'
       produces 'application/json'
 
-      response '200', 'Services returned' do
+      response '200', 'Beams returned' do
         run_test!
       end
     end
 
-    post 'Create service (moderator only)' do
-      tags 'Services'
+    post 'Create beam (moderator only)' do
+      tags 'Beams'
       consumes 'application/json'
       security [{ bearerAuth: [] }]
 
-      parameter name: :service, in: :body, schema: {
+      parameter name: :beam, in: :body, schema: {
         type: :object,
         required: %i[name material elasticity_gpa inertia_cm4 allowed_deflection_ratio],
         properties: {
@@ -38,9 +42,9 @@ describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
         }
       }
 
-      response '201', 'Service created' do
+      response '201', 'Beam created' do
         let(:Authorization) { moderator_token }
-        let(:service) do
+        let(:beam) do
           {
             name: 'Steel beam 200x300',
             material: 'steel',
@@ -54,21 +58,21 @@ describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
 
       response '403', 'Forbidden for non-moderators' do
         let(:Authorization) { nil }
-        let(:service) { {} }
+        let(:beam) { {} }
         run_test!
       end
     end
   end
 
-  path '/api/services/{id}' do
-    get 'Fetch service details (public)' do
-      tags 'Services'
+  path '/api/beams/{id}' do
+    get 'Fetch beam details (public)' do
+      tags 'Beams'
       produces 'application/json'
       parameter name: :id, in: :path, type: :integer
 
-      response '200', 'Service found' do
+      response '200', 'Beam found' do
         let(:record) do
-          Service.create!(
+          Beam.create!(
             name: 'Wood beam',
             material: 'wooden',
             elasticity_gpa: 12,
@@ -81,12 +85,12 @@ describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
       end
     end
 
-    put 'Update service (moderator only)' do
-      tags 'Services'
+    put 'Update beam (moderator only)' do
+      tags 'Beams'
       consumes 'application/json'
       security [{ bearerAuth: [] }]
       parameter name: :id, in: :path, type: :integer
-      parameter name: :service, in: :body, schema: {
+      parameter name: :beam, in: :body, schema: {
         type: :object,
         properties: {
           name: { type: :string },
@@ -95,10 +99,10 @@ describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
         }
       }
 
-      response '200', 'Service updated' do
+      response '200', 'Beam updated' do
         let(:Authorization) { moderator_token }
         let(:record) do
-          Service.create!(
+          Beam.create!(
             name: 'Wood beam',
             material: 'wooden',
             elasticity_gpa: 12,
@@ -107,20 +111,20 @@ describe 'Services API', swagger_doc: 'v1/swagger.yaml' do
           )
         end
         let(:id) { record.id }
-        let(:service) { { allowed_deflection_ratio: 150 } }
+        let(:beam) { { allowed_deflection_ratio: 150 } }
         run_test!
       end
     end
 
-    delete 'Delete service (moderator only)' do
-      tags 'Services'
+    delete 'Delete beam (moderator only)' do
+      tags 'Beams'
       security [{ bearerAuth: [] }]
       parameter name: :id, in: :path, type: :integer
 
-      response '204', 'Service deleted' do
+      response '204', 'Beam deleted' do
         let(:Authorization) { moderator_token }
         let(:record) do
-          Service.create!(
+          Beam.create!(
             name: 'Wood beam',
             material: 'wooden',
             elasticity_gpa: 12,

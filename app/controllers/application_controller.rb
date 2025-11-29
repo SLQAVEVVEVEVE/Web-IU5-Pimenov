@@ -23,13 +23,13 @@ class ApplicationController < ActionController::Base
   end
   
   def current_draft
-    @current_draft ||= current_user.requests.draft.first_or_create! do |req|
-      req.status = :draft
+    @current_draft ||= current_user.beam_deflections.draft.first_or_create! do |bd|
+      bd.status = :draft
     end
   end
   
   def set_cart_state
-    @cart_services_count = current_draft.requests_services.sum(:quantity)
+    @cart_beams_count = current_draft.beam_deflection_beams.sum(:quantity)
   end
   
   def require_login

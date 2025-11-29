@@ -4,27 +4,27 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api do
-    # Service domain
-    resources :services, only: [:index, :show, :create, :update, :destroy] do
+    # Beam domain
+    resources :beams, only: [:index, :show, :create, :update, :destroy] do
       member do
         post :add_to_draft
         post :image
       end
     end
 
-    # Requests utility endpoints
-    get 'requests/cart_badge', to: 'requests/cart_badge#cart_badge'
+    # BeamDeflections utility endpoints
+    get 'beam_deflections/cart_badge', to: 'beam_deflections/cart_badge#cart_badge'
 
-    # Request domain
-    resources :requests, only: [:index, :show, :update, :destroy] do
+    # BeamDeflection domain
+    resources :beam_deflections, only: [:index, :show, :update, :destroy] do
       member do
         put :form
         put :complete
         put :reject
       end
 
-      # m-m operations by service_id (without PK m-m)
-      resource :items, only: [], controller: 'request_items' do
+      # m-m operations by beam_id (without PK m-m)
+      resource :items, only: [], controller: 'beam_deflection_items' do
         put :update_item
         delete :remove_item
       end
@@ -44,8 +44,8 @@ Rails.application.routes.draw do
   end
 
   # Web routes
-  root "services#index"
-  resources :services, only: [:index, :show]
+  root "beams#index"
+  resources :beams, only: [:index, :show]
   resources :orders, only: [:show] do
     member do
       post :complete

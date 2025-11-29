@@ -1,23 +1,23 @@
-class Request < ApplicationRecord
-  include RequestScopes
+class BeamDeflection < ApplicationRecord
+  include BeamDeflectionScopes
   
-  # Constants moved to RequestScopes
-  STATUSES = RequestScopes::STATUSES
+  # Constants moved to BeamDeflectionScopes
+  STATUSES = BeamDeflectionScopes::STATUSES
   
   # Associations
   belongs_to :creator, 
              class_name: 'User', 
              foreign_key: :creator_id, 
-             inverse_of: :requests
+             inverse_of: :beam_deflections
              
   belongs_to :moderator, 
              class_name: 'User', 
              foreign_key: :moderator_id, 
              optional: true, 
-             inverse_of: :moderated_requests
+             inverse_of: :moderated_beam_deflections
   
-  has_many :requests_services, dependent: :destroy
-  has_many :services, through: :requests_services
+  has_many :beam_deflection_beams, dependent: :destroy
+  has_many :beams, through: :beam_deflection_beams
   
   # Validations
   validates :status, presence: true, inclusion: { in: STATUSES.values }
@@ -54,10 +54,10 @@ class Request < ApplicationRecord
   def compute_result!
     total_deflection = 0.0
     
-    requests_services.each do |rs|
-      rs.deflection_mm = Calc::Deflection.call(self, rs.service)
-      rs.save!
-      total_deflection += rs.deflection_mm * rs.quantity
+    beam_deflection_beams.each do |bdb|
+      bdb.deflection_mm = Calc::Deflection.call(self, bdb.beam)
+      bdb.save!
+      total_deflection += bdb.deflection_mm * bdb.quantity
     end
     
     update!(result_deflection_mm: total_deflection)
@@ -65,7 +65,7 @@ class Request < ApplicationRecord
   end
   
   def calculated_items_count
-    result_deflection_mm.presence || requests_services.where.not(deflection_mm: nil).count
+    result_deflection_mm.presence || beam_deflection_beams.where.not(deflection_mm: nil).count
   end
   
   private
@@ -117,7 +117,7 @@ class Request < ApplicationRecord
   # Calculate and store deflections for all services in the request
   def compute_and_store_result_deflection!
     total = 0.0
-    requests_services.find_each do |rs|
+    beam_deflection_beams.find_each do |rs|
       w_mm = self.class.deflection_mm_for(rs)
       rs.update_column(:deflection_mm, w_mm) # update without validations
       total += w_mm

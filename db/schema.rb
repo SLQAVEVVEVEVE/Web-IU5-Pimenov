@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_27_111946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "requests", force: :cascade do |t|
+  create_table "beam_deflections", force: :cascade do |t|
     t.string "status", default: "draft", null: false
     t.bigint "creator_id", null: false
     t.bigint "moderator_id"
@@ -30,19 +30,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
     t.decimal "result_deflection_mm", precision: 18, scale: 6
     t.datetime "calculated_at"
     t.index ["creator_id"], name: "idx_requests_single_draft_per_user", unique: true, where: "((status)::text = 'draft'::text)"
-    t.index ["creator_id"], name: "index_requests_on_creator_id"
-    t.index ["formed_at"], name: "index_requests_on_formed_at"
-    t.index ["moderator_id"], name: "index_requests_on_moderator_id"
-    t.index ["status", "creator_id"], name: "index_requests_on_status_and_creator_id"
-    t.index ["status"], name: "index_requests_on_status"
+    t.index ["creator_id"], name: "index_beam_deflections_on_creator_id"
+    t.index ["formed_at"], name: "index_beam_deflections_on_formed_at"
+    t.index ["moderator_id"], name: "index_beam_deflections_on_moderator_id"
+    t.index ["status", "creator_id"], name: "index_beam_deflections_on_status_and_creator_id"
+    t.index ["status"], name: "index_beam_deflections_on_status"
     t.check_constraint "length_m > 0::numeric", name: "check_length_positive"
     t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'deleted'::character varying::text, 'formed'::character varying::text, 'completed'::character varying::text, 'rejected'::character varying::text])", name: "check_status"
     t.check_constraint "udl_kn_m >= 0::numeric", name: "check_udl_non_negative"
   end
 
-  create_table "requests_services", force: :cascade do |t|
-    t.bigint "request_id", null: false
-    t.bigint "service_id", null: false
+  create_table "beam_deflections_beams", force: :cascade do |t|
+    t.bigint "beam_deflection_id", null: false
+    t.bigint "beam_id", null: false
     t.integer "quantity", default: 1, null: false
     t.integer "position", default: 1, null: false
     t.boolean "primary", default: false, null: false
@@ -50,14 +50,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
     t.datetime "updated_at", null: false
     t.boolean "is_primary", default: false, null: false
     t.decimal "deflection_mm", precision: 18, scale: 6
-    t.index ["request_id", "service_id"], name: "idx_requests_services_unique", unique: true
-    t.index ["request_id", "service_id"], name: "index_requests_services_on_request_and_service", unique: true
-    t.index ["request_id", "service_id"], name: "index_requests_services_on_request_id_and_service_id", unique: true
+    t.index ["beam_deflection_id", "beam_id"], name: "idx_requests_services_unique", unique: true
+    t.index ["beam_deflection_id", "beam_id"], name: "index_beam_deflections_beams_on_beam_deflection_id_and_beam_id", unique: true
+    t.index ["beam_deflection_id", "beam_id"], name: "index_requests_services_on_request_and_service", unique: true
     t.check_constraint "\"position\" > 0", name: "check_position_positive"
     t.check_constraint "quantity > 0", name: "check_quantity_positive"
   end
 
-  create_table "services", force: :cascade do |t|
+  create_table "beams", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
     t.boolean "active", default: true, null: false
@@ -69,8 +69,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image_key"
-    t.index ["active"], name: "index_services_on_active"
-    t.index ["name"], name: "index_services_on_name", unique: true
+    t.index ["active"], name: "index_beams_on_active"
+    t.index ["name"], name: "index_beams_on_name", unique: true
     t.check_constraint "allowed_deflection_ratio > 0", name: "check_deflection_ratio_positive"
     t.check_constraint "elasticity_gpa > 0::numeric", name: "check_elasticity_positive"
     t.check_constraint "inertia_cm4 > 0::numeric", name: "check_inertia_positive"
@@ -86,8 +86,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_05_080000) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "requests", "users", column: "creator_id", on_delete: :restrict
-  add_foreign_key "requests", "users", column: "moderator_id", on_delete: :nullify
-  add_foreign_key "requests_services", "requests", on_delete: :restrict
-  add_foreign_key "requests_services", "services", on_delete: :restrict
+  add_foreign_key "beam_deflections", "users", column: "creator_id", on_delete: :restrict
+  add_foreign_key "beam_deflections", "users", column: "moderator_id", on_delete: :nullify
+  add_foreign_key "beam_deflections_beams", "beam_deflections", on_delete: :restrict
+  add_foreign_key "beam_deflections_beams", "beams", on_delete: :restrict
 end

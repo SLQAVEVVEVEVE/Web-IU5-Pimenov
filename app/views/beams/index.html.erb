@@ -2,29 +2,29 @@
 <h1 class="page-title">Типы балок</h1>
 
 <div class="toolbar">
-  <%= form_with url: services_path, method: :get, local: true do |f| %>
+  <%= form_with url: beams_path, method: :get, local: true do |f| %>
     <%= f.search_field :q, placeholder: "Поиск по названию, материалу…", class: "search-input" %>
     <%= f.submit "Найти", class: "btn btn--primary" %>
   <% end %>
 </div>
 
-<% if @services.any? %>
+<% if @beams.any? %>
   <div class="grid">
-    <% @services.each do |s| %>
+    <% @beams.each do |b| %>
       <div class="card card--grid">
         <div class="card__thumb-wrap">
-          <%= image_url_for(s.image_key, alt: s.name, class: "card__thumb") %>
+          <%= image_url_for(b.image_key, alt: b.name, class: "card__thumb") %>
         </div>
         <div class="card__body">
-          <h3 class="card__title"><%= s.name %></h3>
+          <h3 class="card__title"><%= b.name %></h3>
           <div class="card__meta">
-            Материал: <%= s.material %> · E = <%= s.elasticity_gpa %> ГПа · I = <%= number_with_precision(s.inertia_cm4, precision: 1) %> см⁴ · Норма: L/<%= s.allowed_deflection_ratio %>
+            Материал: <%= b.material %> · E = <%= b.elasticity_gpa %> ГПа · I = <%= number_with_precision(b.inertia_cm4, precision: 1) %> см⁴ · Норма: L/<%= b.allowed_deflection_ratio %>
           </div>
 
           <div class="card__actions">
-            <a href="<%= service_path(s) %>" class="btn btn--secondary"><span>Подробнее</span></a>
+            <a href="<%= beam_path(b) %>" class="btn btn--secondary"><span>Подробнее</span></a>
             <%= form_with url: cart_items_path, method: :post, local: true do %>
-              <%= hidden_field_tag :service_id, s.id %>
+              <%= hidden_field_tag :beam_id, b.id %>
               <%= hidden_field_tag :quantity, 1 %>
               <%= submit_tag "В заявку", class: "btn btn--primary" %>
             <% end %>

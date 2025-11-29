@@ -1,6 +1,8 @@
-class RequestsService < ApplicationRecord
-  belongs_to :request
-  belongs_to :service
+class BeamDeflectionBeam < ApplicationRecord
+  self.table_name = "beam_deflections_beams"
+  
+  belongs_to :beam_deflection
+  belongs_to :beam
 
   # Set default values
   attribute :is_primary, :boolean, default: false
@@ -10,7 +12,7 @@ class RequestsService < ApplicationRecord
   # Validations
   validates :quantity, numericality: { only_integer: true, greater_than: 0 }
   validates :is_primary, inclusion: { in: [true, false] }
-  validates :request_id, uniqueness: { scope: :service_id }
+  validates :beam_deflection_id, uniqueness: { scope: :beam_id }
   
   # Backward compatibility
   before_validation do

@@ -1,4 +1,4 @@
-module ServiceScopes
+module BeamScopes
   extend ActiveSupport::Concern
   
   included do

@@ -1,0 +1,317 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-01-29T20:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_demo",
+      "parentId": null,
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "name": "Beam Deflection Demo",
+      "description": "Демонстрация API для Beam Deflection Calculator",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_demo",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "user_token": "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozOSwiZXhwIjoxNzY0NTI5NTUwfQ.h61r9z0Rud3pyUVrYoNrO88wr-xf6Vq8Z8iJN1FFQV4",
+        "moderator_token": "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MCwiZXhwIjoxNzY0NTI5NTUwfQ.74Ud9dJZ1pPFzydT-yMWA-o5eqH0nOYmNlKiVtZJLl0",
+        "formed_id": "52"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "user_token", "moderator_token", "formed_id"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1706558400000,
+      "_type": "environment"
+    },
+    {
+      "_id": "req_1_signin_user",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_in",
+      "name": "1. Sign In (User)",
+      "description": "Аутентификация обычного пользователя",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@demo.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558400000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_2_signin_moderator",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_in",
+      "name": "2. Sign In (Moderator)",
+      "description": "Аутентификация модератора",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"moderator@demo.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558399000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_3_guest",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "3. GET Requests (Guest) → 401",
+      "description": "Попытка получить список без токена",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1706558398000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_4_user_list",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "4. GET Requests (User) → Own Only",
+      "description": "Пользователь видит только свои заявки",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558397000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_5_user_complete",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.formed_id }}/complete",
+      "name": "5. Complete Request (User) → 403",
+      "description": "Обычный пользователь не может завершить заявку",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558396000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_6_mod_complete",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.formed_id }}/complete",
+      "name": "6. Complete Request (Moderator) → 200",
+      "description": "Модератор успешно завершает заявку",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558395000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_7_mod_all",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "7. GET Requests (Moderator) → All",
+      "description": "Модератор видит все заявки",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558394000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_8_mod_drafts",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "8. GET Drafts (Moderator) ✨ NEW",
+      "description": "НОВАЯ ФУНКЦИЯ: Модератор видит все драфты",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "status",
+          "value": "draft"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558393000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_9_signout",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_out",
+      "name": "9. Sign Out (Blacklist Token)",
+      "description": "Добавить токен в blacklist",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}",
+          "description": "ЗАМЕНИТЕ на токен, который хотите заблокировать"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558392000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_10_blacklisted",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "10. GET with Blacklisted Token → 401",
+      "description": "Использовать заблокированный токен",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer REPLACE_WITH_BLACKLISTED_TOKEN",
+          "description": "Вставьте токен после sign_out"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558391000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_me",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/me",
+      "name": "EXTRA: GET Current User",
+      "description": "Получить данные текущего пользователя",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558390000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_beams",
+      "parentId": "wrk_demo",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams",
+      "name": "EXTRA: GET Beams",
+      "description": "Получить список балок (публичный endpoint)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1706558389000,
+      "isPrivate": false,
+      "_type": "request"
+    }
+  ]
+}

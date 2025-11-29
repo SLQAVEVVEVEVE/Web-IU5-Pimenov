@@ -24,8 +24,16 @@ module Api
     end
     
     def sign_out
-      # JWT is stateless, so we just return success
-      head :no_content
+      token = bearer_token
+
+      if token.present? && JwtToken.blacklist!(token)
+        Rails.logger.info "[Auth] Token blacklisted for user #{Current.user&.id}"
+        render json: { message: 'Successfully signed out' }, status: :ok
+      else
+        Rails.logger.warn "[Auth] Failed to blacklist token for user #{Current.user&.id}"
+        # Still return success even if blacklist fails (token will expire naturally)
+        render json: { message: 'Signed out (token not blacklisted)' }, status: :ok
+      end
     end
     
     def me

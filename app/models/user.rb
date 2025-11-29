@@ -2,14 +2,14 @@ class User < ApplicationRecord
   has_secure_password
 
   # Associations
-  has_many :requests, 
-           class_name: "Request", 
+  has_many :beam_deflections, 
+           class_name: "BeamDeflection", 
            foreign_key: :creator_id, 
            inverse_of: :creator, 
            dependent: :nullify
            
-  has_many :moderated_requests, 
-           class_name: "Request", 
+  has_many :moderated_beam_deflections, 
+           class_name: "BeamDeflection", 
            foreign_key: :moderator_id, 
            inverse_of: :moderator, 
            dependent: :nullify

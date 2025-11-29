@@ -11,12 +11,44 @@ class JwtToken
       JWT.encode(payload, SECRET_KEY, ALGORITHM)
     end
 
-    def decode(token)
+    def decode(token, check_blacklist: true)
+      # Check blacklist first (if enabled)
+      if check_blacklist && blacklisted?(token)
+        Rails.logger.warn("JWT Error: Token is blacklisted")
+        return nil
+      end
+
       body = JWT.decode(token, SECRET_KEY, true, { algorithm: ALGORITHM }).first
       ActiveSupport::HashWithIndifferentAccess.new(body)
     rescue JWT::ExpiredSignature, JWT::VerificationError, JWT::DecodeError => e
       Rails.logger.error("JWT Error: #{e.message}")
       nil
+    end
+
+    # Check if token is in blacklist
+    # @param token [String] the JWT token
+    # @return [Boolean] true if blacklisted
+    def blacklisted?(token)
+      return false if token.blank?
+
+      # Only check blacklist if JwtBlacklist is available
+      return false unless defined?(JwtBlacklist)
+
+      JwtBlacklist.blacklisted?(token)
+    end
+
+    # Add token to blacklist (typically called on sign out)
+    # @param token [String] the JWT token
+    # @return [Boolean] true if successfully blacklisted
+    def blacklist!(token)
+      return false if token.blank?
+      return false unless defined?(JwtBlacklist)
+
+      # Get expiration from token
+      payload = decode(token, check_blacklist: false)
+      return false unless payload
+
+      JwtBlacklist.add(token, exp: payload[:exp])
     end
   end
 end

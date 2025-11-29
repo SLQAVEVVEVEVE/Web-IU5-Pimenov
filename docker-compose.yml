@@ -7,10 +7,12 @@ services:
       - .env
     environment:
       - DATABASE_HOST=db
+      - REDIS_URL=redis://redis:6379/0
       - RAILS_ENV=development
       - BUNDLE_PATH=/bundle
     depends_on:
       - db
+      - redis
       - minio
     volumes:
       - .:/app
@@ -27,6 +29,20 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -42,4 +58,5 @@ services:
 volumes:
   minio_data:
   postgres_data:
+  redis_data:
   bundle_cache:

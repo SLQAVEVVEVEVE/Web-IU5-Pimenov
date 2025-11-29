@@ -1,12 +1,12 @@
-class Service < ApplicationRecord
-  include ServiceScopes
+class Beam < ApplicationRecord
+  include BeamScopes
   
   # Constants
   MATERIALS = %w[wooden steel reinforced_concrete].freeze
   
   # Associations
-  has_many :requests_services, dependent: :destroy
-  has_many :requests, through: :requests_services
+  has_many :beam_deflection_beams, dependent: :destroy
+  has_many :beam_deflections, through: :beam_deflection_beams
   
   # Validations
   validates :name, 

@@ -3,40 +3,40 @@
 
 <div class="toolbar" style="justify-content:space-between; gap:12px;">
   <div>
-    <%= link_to "К выбору", services_path, class: "btn btn--secondary" %>
+    <%= link_to "К выбору", beams_path, class: "btn btn--secondary" %>
   </div>
   
   <div style="display: flex; gap: 12px;">
-    <% if @request.draft? || @request.formed? %>
-      <%= button_to "Завершить", complete_order_path(@request),
+    <% if @beam_deflection.draft? || @beam_deflection.formed? %>
+      <%= button_to "Завершить", complete_order_path(@beam_deflection),
             method: :post,
             class: "btn btn--primary",
             form: { data: { turbo_confirm: "Завершить заявку и выполнить расчёт?" } } %>
     <% end %>
     
     <%# Кнопка логического удаления заявки (НЕ ORM) — оставляем как в проекте %>
-    <%= form_with url: delete_order_path(@request), method: :post, local: true do |f| %>
+    <%= form_with url: delete_order_path(@beam_deflection), method: :post, local: true do |f| %>
       <%= f.submit "Удалить заявку", class: "btn btn--danger" %>
     <% end %>
   </div>
 </div>
 
 <%# Display calculation results if available %>
-<% if @request.result_deflection_mm.present? %>
+<% if @beam_deflection.result_deflection_mm.present? %>
   <div class="card" style="margin-bottom: 24px; padding: 16px;">
     <h3 style="margin-top: 0; margin-bottom: 12px;">Результаты расчёта</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
       <div>
         <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Суммарный прогиб</div>
         <div style="font-size: 20px; font-weight: 600;">
-          <%= number_with_precision(@request.result_deflection_mm, precision: 2) %> <span style="font-size: 14px; color: #6b7280;">мм</span>
+          <%= number_with_precision(@beam_deflection.result_deflection_mm, precision: 2) %> <span style="font-size: 14px; color: #6b7280;">мм</span>
         </div>
       </div>
-      <% if @request.calculated_at %>
+      <% if @beam_deflection.calculated_at %>
         <div>
           <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Рассчитано</div>
           <div style="font-size: 14px;">
-            <%= l(@request.calculated_at, format: :long) %>
+            <%= l(@beam_deflection.calculated_at, format: :long) %>
           </div>
         </div>
       <% end %>
@@ -47,18 +47,18 @@
 <% if @items.any? %>
   <div class="grid">
     <% @items.each do |item| %>
-      <% s = item.service %>
+      <% b = item.beam %>
 
       <div class="card card--grid">
         <div class="card__thumb-wrap">
-          <%= image_tag minio_image_url(s.image_url), alt: s.name, class: "card__thumb" %>
+          <%= image_tag minio_image_url(b.image_url), alt: b.name, class: "card__thumb" %>
         </div>
 
         <div class="card__body">
-          <h3 class="card__title"><%= s.name %></h3>
+          <h3 class="card__title"><%= b.name %></h3>
 
           <div class="card__meta">
-            Материал: <%= s.material %> · Модуль E: <%= s.elasticity_gpa %> ГПа · Норма: L/<%= s.allowed_deflection_ratio %>
+            Материал: <%= b.material %> · Модуль E: <%= b.elasticity_gpa %> ГПа · Норма: L/<%= b.allowed_deflection_ratio %>
           </div>
 
           <div class="order-inputs">
@@ -84,7 +84,7 @@
             </div>
           <% end %>
           
-          <% if @request.draft? || @request.formed? %>
+          <% if @beam_deflection.draft? || @beam_deflection.formed? %>
             <%= form_with url: update_order_item_path(item), method: :patch, local: true, id: "update_form_#{item.id}" do |f| %>
               <%= f.hidden_field :id, value: item.id %>
               <button type="submit" class="btn btn--small" style="margin-top: 8px;">Обновить</button>

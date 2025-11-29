@@ -1,4 +1,4 @@
-module RequestScopes
+module BeamDeflectionScopes
   extend ActiveSupport::Concern
   
   included do
@@ -53,16 +53,16 @@ module RequestScopes
   def compute_result!
     total_deflection = 0.0
     
-    requests_services.each do |rs|
-      rs.deflection_mm = Calc::Deflection.call(self, rs.service)
-      rs.save!
-      total_deflection += rs.deflection_mm * rs.quantity
+    beam_deflection_beams.each do |bdb|
+      bdb.deflection_mm = Calc::Deflection.call(self, bdb.beam)
+      bdb.save!
+      total_deflection += bdb.deflection_mm * bdb.quantity
     end
     
     total_deflection
   end
   
   def calculated_items_count
-    result_deflection_mm.presence || requests_services.where.not(deflection_mm: nil).count
+    result_deflection_mm.presence || beam_deflection_beams.where.not(deflection_mm: nil).count
   end
 end
