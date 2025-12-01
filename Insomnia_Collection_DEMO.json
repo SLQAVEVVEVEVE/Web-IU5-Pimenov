@@ -1,0 +1,679 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-01-30T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_demo_full",
+      "parentId": null,
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "name": "Beam Deflection - Full Demo (21 Requests)",
+      "description": "Полная демонстрация всех 21 endpoint в правильном порядке",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_demo_full",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "user_token": "",
+        "moderator_token": "",
+        "new_beam_id": "",
+        "draft_id": "",
+        "formed_id": "",
+        "new_user_token": ""
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "user_token", "moderator_token", "new_beam_id", "draft_id", "formed_id", "new_user_token"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1706558400000,
+      "_type": "environment"
+    },
+    {
+      "_id": "req_01_get_deflections_filter",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections",
+      "name": "01. GET список заявок (с фильтрацией)",
+      "description": "Фильтрация по дате формирования и статусу",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "status",
+          "value": "completed",
+          "disabled": false
+        },
+        {
+          "name": "from",
+          "value": "2025-01-01",
+          "disabled": false
+        },
+        {
+          "name": "to",
+          "value": "2025-12-31",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558401000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_02_cart_badge",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/cart_badge",
+      "name": "02. GET иконки корзины",
+      "description": "Возвращает id заявки-черновика и количество услуг",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558402000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_03_delete_draft",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}",
+      "name": "03. DELETE заявку (если есть)",
+      "description": "Удалить существующую draft заявку. Замените draft_id в переменных окружения",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558403000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_04_get_beams_filter",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams",
+      "name": "04. GET список услуг (с фильтром)",
+      "description": "Фильтрация по активности и поиску",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "active",
+          "value": "true",
+          "disabled": false
+        },
+        {
+          "name": "q",
+          "value": "Steel",
+          "disabled": true
+        }
+      ],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1706558404000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_05_create_beam",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams",
+      "name": "05. POST новая услуга (без изображения)",
+      "description": "Создание новой балки модератором. СОХРАНИТЕ ID из ответа в переменную new_beam_id!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"beam\": {\n    \"name\": \"Test Beam Demo\",\n    \"description\": \"Тестовая балка для демонстрации\",\n    \"material\": \"steel\",\n    \"elasticity_gpa\": 200,\n    \"inertia_cm4\": 5000,\n    \"allowed_deflection_ratio\": 250,\n    \"active\": true\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558405000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_06_upload_image",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/{{ _.new_beam_id }}/image",
+      "name": "06. POST добавить изображение (MinIO)",
+      "description": "Загрузка изображения для балки. Название генерируется на латинице. ЗАМЕНИТЕ new_beam_id!",
+      "method": "POST",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "file",
+            "type": "file",
+            "fileName": "beam_image.png",
+            "disabled": false
+          }
+        ]
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558406000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_07_add_to_draft_1",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/39/add_to_draft",
+      "name": "07. POST добавить услугу #1 в заявку",
+      "description": "Добавление первой балки (ID=39) в черновик заявки",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quantity\": 2\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558407000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_08_add_to_draft_2",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/40/add_to_draft",
+      "name": "08. POST добавить услугу #2 в заявку",
+      "description": "Добавление второй балки (ID=40) в тот же черновик",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quantity\": 3\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558408000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_09_cart_badge_again",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/cart_badge",
+      "name": "09. GET иконки корзины (повторно)",
+      "description": "Теперь должно показать 5 услуг (2+3). СОХРАНИТЕ beam_deflection_id в переменную draft_id!",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558409000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_10_get_draft",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}",
+      "name": "10. GET заявку (из 2 услуг с картинками)",
+      "description": "Просмотр заявки со списком её услуг и изображениями. ЗАМЕНИТЕ draft_id!",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558410000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_11_update_mm_item",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}/items/update_item",
+      "name": "11. PUT изменить поле м-м (без PK)",
+      "description": "Изменение количества/позиции без использования PK м-м таблицы",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"beam_id\": 39,\n  \"beam_deflection_beam\": {\n    \"quantity\": 5,\n    \"position\": 1\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558411000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_12_update_deflection",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}",
+      "name": "12. PUT изменить поля заявки",
+      "description": "Изменение полей заявки (length_m, udl_kn_m, note)",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"beam_deflection\": {\n    \"length_m\": 10.5,\n    \"udl_kn_m\": 15.0,\n    \"note\": \"Демонстрационная заявка для тестирования\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558412000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_13_complete_error",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}/complete",
+      "name": "13. PUT завершить заявку → ОШИБКА",
+      "description": "Попытка завершить draft заявку. Должна вернуть ошибку (need formed status)",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558413000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_14_form_deflection",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}/form",
+      "name": "14. PUT сформировать заявку",
+      "description": "Формирование заявки (проверка обязательных полей, дата формирования)",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558414000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_15_complete_success",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}/complete",
+      "name": "15. PUT завершить заявку → УСПЕХ (расчет прогиба)",
+      "description": "Завершение заявки модератором. Расчет прогиба по формуле w = 5*q*L⁴/(384*E*J)",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558415000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_16_sign_up",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_up",
+      "name": "16. POST регистрация нового пользователя",
+      "description": "Регистрация нового пользователя. СОХРАНИТЕ token из ответа!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"newuser@test.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558416000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_17_sign_in_user",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_in",
+      "name": "17. POST аутентификация пользователя",
+      "description": "Аутентификация. СОХРАНИТЕ token в переменную user_token!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@demo.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558417000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_18_sign_in_mod",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_in",
+      "name": "18. POST аутентификация модератора",
+      "description": "Аутентификация модератора. СОХРАНИТЕ token в переменную moderator_token!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"moderator@demo.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558418000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_19_get_me",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/me",
+      "name": "19. GET данных текущего пользователя",
+      "description": "Получение данных текущего пользователя (личный кабинет)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558419000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_20_update_me",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/me",
+      "name": "20. PUT обновление пользователя",
+      "description": "Обновление данных пользователя (личный кабинет)",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@demo.com\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558420000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_21_sign_out",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/auth/sign_out",
+      "name": "21. POST деавторизация (blacklist token)",
+      "description": "Деавторизация с добавлением токена в Redis blacklist",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558421000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_update_beam",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/{{ _.new_beam_id }}",
+      "name": "EXTRA: PUT изменить услугу",
+      "description": "Изменение балки модератором",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"beam\": {\n    \"name\": \"Updated Beam Name\",\n    \"description\": \"Обновленное описание\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558422000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_delete_beam",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/{{ _.new_beam_id }}",
+      "name": "EXTRA: DELETE услугу (с MinIO удалением)",
+      "description": "Удаление балки вместе с изображением из MinIO",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558423000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_remove_mm",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.draft_id }}/items/remove_item",
+      "name": "EXTRA: DELETE удалить услугу из заявки",
+      "description": "Удаление услуги из заявки (без PK м-м)",
+      "method": "DELETE",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"beam_id\": 40\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.user_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558424000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_reject",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beam_deflections/{{ _.formed_id }}/reject",
+      "name": "EXTRA: PUT отклонить заявку",
+      "description": "Отклонение заявки модератором",
+      "method": "PUT",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.moderator_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1706558425000,
+      "_type": "request"
+    },
+    {
+      "_id": "req_extra_get_beam",
+      "parentId": "wrk_demo_full",
+      "modified": 1706558400000,
+      "created": 1706558400000,
+      "url": "{{ _.base_url }}/api/beams/{{ _.new_beam_id }}",
+      "name": "EXTRA: GET одна услуга",
+      "description": "Получение одной балки по ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1706558426000,
+      "_type": "request"
+    }
+  ]
+}
