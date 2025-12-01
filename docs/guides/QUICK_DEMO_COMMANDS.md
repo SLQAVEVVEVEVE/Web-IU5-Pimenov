@@ -1,13 +1,13 @@
-# Быстрые команды для демонстрации
+﻿# Р‘С‹СЃС‚СЂС‹Рµ РєРѕРјР°РЅРґС‹ РґР»СЏ РґРµРјРѕРЅСЃС‚СЂР°С†РёРё
 
-## Учетные данные
+## РЈС‡РµС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ
 
 ```
 User: user@demo.com / password123
 Moderator: moderator@demo.com / password123
 ```
 
-## JWT Токены
+## JWT РўРѕРєРµРЅС‹
 
 ```bash
 # User Token
@@ -19,7 +19,7 @@ eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MCwiZXhwIjoxNzY0NTI5NTUwfQ.74Ud9dJZ1pPFzydT
 
 ## Insomnia/Postman Requests
 
-### 1. Sign In (Обычный пользователь)
+### 1. Sign In (РћР±С‹С‡РЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ)
 ```
 POST http://localhost:3000/api/auth/sign_in
 Content-Type: application/json
@@ -30,7 +30,7 @@ Content-Type: application/json
 }
 ```
 
-### 2. Sign In (Модератор)
+### 2. Sign In (РњРѕРґРµСЂР°С‚РѕСЂ)
 ```
 POST http://localhost:3000/api/auth/sign_in
 Content-Type: application/json
@@ -41,89 +41,89 @@ Content-Type: application/json
 }
 ```
 
-### 3. GET заявки (без токена) → 401
+### 3. GET Р·Р°СЏРІРєРё (Р±РµР· С‚РѕРєРµРЅР°) в†’ 401
 ```
 GET http://localhost:3000/api/beam_deflections
 ```
 
-### 4. GET заявки (обычный пользователь) → только свои
+### 4. GET Р·Р°СЏРІРєРё (РѕР±С‹С‡РЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ) в†’ С‚РѕР»СЊРєРѕ СЃРІРѕРё
 ```
 GET http://localhost:3000/api/beam_deflections
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozOSwiZXhwIjoxNzY0NTI5NTUwfQ.h61r9z0Rud3pyUVrYoNrO88wr-xf6Vq8Z8iJN1FFQV4
 ```
 
-### 5. Complete заявки (обычный пользователь) → 403
+### 5. Complete Р·Р°СЏРІРєРё (РѕР±С‹С‡РЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ) в†’ 403
 ```
 PUT http://localhost:3000/api/beam_deflections/52/complete
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozOSwiZXhwIjoxNzY0NTI5NTUwfQ.h61r9z0Rud3pyUVrYoNrO88wr-xf6Vq8Z8iJN1FFQV4
 ```
 
-### 6. Complete заявки (модератор) → 200 OK
+### 6. Complete Р·Р°СЏРІРєРё (РјРѕРґРµСЂР°С‚РѕСЂ) в†’ 200 OK
 ```
 PUT http://localhost:3000/api/beam_deflections/52/complete
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MCwiZXhwIjoxNzY0NTI5NTUwfQ.74Ud9dJZ1pPFzydT-yMWA-o5eqH0nOYmNlKiVtZJLl0
 ```
 
-### 7. GET заявки (модератор) → все заявки
+### 7. GET Р·Р°СЏРІРєРё (РјРѕРґРµСЂР°С‚РѕСЂ) в†’ РІСЃРµ Р·Р°СЏРІРєРё
 ```
 GET http://localhost:3000/api/beam_deflections
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MCwiZXhwIjoxNzY0NTI5NTUwfQ.74Ud9dJZ1pPFzydT-yMWA-o5eqH0nOYmNlKiVtZJLl0
 ```
 
-### 8. GET драфты (модератор) → все драфты ✨ НОВОЕ
+### 8. GET РґСЂР°С„С‚С‹ (РјРѕРґРµСЂР°С‚РѕСЂ) в†’ РІСЃРµ РґСЂР°С„С‚С‹ вњЁ РќРћР’РћР•
 ```
 GET http://localhost:3000/api/beam_deflections?status=draft
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MCwiZXhwIjoxNzY0NTI5NTUwfQ.74Ud9dJZ1pPFzydT-yMWA-o5eqH0nOYmNlKiVtZJLl0
 ```
 
-### 9. Sign Out (добавить токен в blacklist)
+### 9. Sign Out (РґРѕР±Р°РІРёС‚СЊ С‚РѕРєРµРЅ РІ blacklist)
 ```
 POST http://localhost:3000/api/auth/sign_out
-Authorization: Bearer <токен_для_блокировки>
+Authorization: Bearer <С‚РѕРєРµРЅ_РґР»СЏ_Р±Р»РѕРєРёСЂРѕРІРєРё>
 ```
 
 ## Redis Commands
 
 ```bash
-# Показать все ключи
+# РџРѕРєР°Р·Р°С‚СЊ РІСЃРµ РєР»СЋС‡Рё
 docker-compose exec redis redis-cli KEYS "*"
 
-# Показать blacklist ключи
+# РџРѕРєР°Р·Р°С‚СЊ blacklist РєР»СЋС‡Рё
 docker-compose exec redis redis-cli KEYS "jwt:blacklist:*"
 
-# Получить значение ключа
+# РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РєР»СЋС‡Р°
 docker-compose exec redis redis-cli GET "jwt:blacklist:<hash>"
 
-# Показать TTL ключа
+# РџРѕРєР°Р·Р°С‚СЊ TTL РєР»СЋС‡Р°
 docker-compose exec redis redis-cli TTL "jwt:blacklist:<hash>"
 
-# Подсчитать количество blacklist ключей
+# РџРѕРґСЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ blacklist РєР»СЋС‡РµР№
 docker-compose exec redis redis-cli KEYS "jwt:blacklist:*" | wc -l
 
-# Redis статистика
+# Redis СЃС‚Р°С‚РёСЃС‚РёРєР°
 docker-compose exec redis redis-cli INFO stats
 
-# Очистить все blacklist ключи
+# РћС‡РёСЃС‚РёС‚СЊ РІСЃРµ blacklist РєР»СЋС‡Рё
 docker-compose exec redis redis-cli KEYS "jwt:blacklist:*" | xargs docker-compose exec redis redis-cli DEL
 ```
 
 ## Rails Commands
 
 ```bash
-# Подготовить demo данные
-docker-compose exec web bin/rails runner prepare_demo.rb
+# РџРѕРґРіРѕС‚РѕРІРёС‚СЊ demo РґР°РЅРЅС‹Рµ
+docker-compose exec web bin/rails runner utilities/scripts/prepare_demo.rb
 
-# Статистика по заявкам
+# РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ Р·Р°СЏРІРєР°Рј
 docker-compose exec web bin/rails runner "
 puts 'Draft: #{BeamDeflection.draft.count}'
 puts 'Formed: #{BeamDeflection.formed.count}'
 puts 'Completed: #{BeamDeflection.completed.count}'
 "
 
-# Найти пользователя по ID
+# РќР°Р№С‚Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ ID
 docker-compose exec web bin/rails runner "puts User.find(39).inspect"
 
-# Декодировать JWT (показать payload)
+# Р”РµРєРѕРґРёСЂРѕРІР°С‚СЊ JWT (РїРѕРєР°Р·Р°С‚СЊ payload)
 docker-compose exec web bin/rails runner "
 token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozOSwiZXhwIjoxNzY0NTI5NTUwfQ.h61r9z0Rud3pyUVrYoNrO88wr-xf6Vq8Z8iJN1FFQV4'
 puts JwtToken.decode(token).inspect
@@ -136,22 +136,23 @@ puts JwtToken.decode(token).inspect
 - **Web UI**: http://localhost:3000
 - **API**: http://localhost:3000/api
 
-## Проверка ID заявок для демонстрации
+## РџСЂРѕРІРµСЂРєР° ID Р·Р°СЏРІРѕРє РґР»СЏ РґРµРјРѕРЅСЃС‚СЂР°С†РёРё
 
 ```bash
-# Найти formed заявку для completion
+# РќР°Р№С‚Рё formed Р·Р°СЏРІРєСѓ РґР»СЏ completion
 docker-compose exec web bin/rails runner "
 bd = BeamDeflection.formed.first
 puts \"Use ID: #{bd.id}\" if bd
 "
 ```
 
-## Сброс демо-данных
+## РЎР±СЂРѕСЃ РґРµРјРѕ-РґР°РЅРЅС‹С…
 
 ```bash
-# Удалить все beam deflections
+# РЈРґР°Р»РёС‚СЊ РІСЃРµ beam deflections
 docker-compose exec web bin/rails runner "BeamDeflection.destroy_all"
 
-# Пересоздать демо данные
-docker-compose exec web bin/rails runner prepare_demo.rb
+# РџРµСЂРµСЃРѕР·РґР°С‚СЊ РґРµРјРѕ РґР°РЅРЅС‹Рµ
+docker-compose exec web bin/rails runner utilities/scripts/prepare_demo.rb
 ```
+

@@ -1,6 +1,6 @@
-# JWT Blacklist Testing Guide
+﻿# JWT Blacklist Testing Guide
 
-## 🎯 Visual Testing Through Swagger UI
+## рџЋЇ Visual Testing Through Swagger UI
 
 ### Step 1: Open Swagger UI
 Open in browser: **http://localhost:3000/api-docs**
@@ -20,40 +20,40 @@ Open in browser: **http://localhost:3000/api-docs**
 5. **Copy the `token` from response** - you'll need it!
 
 ### Step 3: Authorize in Swagger
-1. Click **🔓 Authorize** button at the top
+1. Click **рџ”“ Authorize** button at the top
 2. Paste your token in the "Value" field
 3. Click "Authorize" then "Close"
-4. You should now see 🔒 (locked) icon
+4. You should now see рџ”’ (locked) icon
 
 ### Step 4: Test Authenticated Endpoint
 1. Find **`GET /api/me`** endpoint
-2. Click "Try it out" → "Execute"
-3. Should return 200 with your user info ✅
+2. Click "Try it out" в†’ "Execute"
+3. Should return 200 with your user info вњ…
 
 ### Step 5: Sign Out (Blacklist Token)
 1. Find **`POST /api/auth/sign_out`** endpoint
-2. Click "Try it out" → "Execute"
-3. Should return 200 with message: "Successfully signed out" ✅
+2. Click "Try it out" в†’ "Execute"
+3. Should return 200 with message: "Successfully signed out" вњ…
 
 ### Step 6: Verify Token is Blacklisted
 1. Try **`GET /api/me`** again
-2. Should return **401 Unauthorized** ❌
+2. Should return **401 Unauthorized** вќЊ
 3. Error: "Invalid or expired token"
 
 ### Step 7: Sign In Again
 1. Use **`POST /api/auth/sign_in`** with same credentials
 2. Get new token (different from first one)
-3. New token should work! ✅
+3. New token should work! вњ…
 
 ---
 
-## 🔍 Monitoring Redis Blacklist
+## рџ”Ќ Monitoring Redis Blacklist
 
 ### View Current Blacklisted Tokens
 
 ```bash
 # Run the monitor script
-bash monitor_redis_blacklist.sh
+bash utilities/scripts/monitor_redis_blacklist.sh
 ```
 
 Output shows:
@@ -93,7 +93,7 @@ redis-cli --scan --pattern "jwt:blacklist:*" | xargs redis-cli DEL
 
 ---
 
-## 📊 Expected Results
+## рџ“Љ Expected Results
 
 ### After Sign Up
 - Redis: 0 blacklisted tokens
@@ -109,32 +109,32 @@ redis-cli --scan --pattern "jwt:blacklist:*" | xargs redis-cli DEL
 
 ---
 
-## 🧪 Testing Scenarios
+## рџ§Є Testing Scenarios
 
 ### Scenario 1: Basic Flow
-1. Sign up → Get token A
-2. Access /api/me → 200 ✅
-3. Sign out → Token A blacklisted
-4. Access /api/me → 401 ❌
+1. Sign up в†’ Get token A
+2. Access /api/me в†’ 200 вњ…
+3. Sign out в†’ Token A blacklisted
+4. Access /api/me в†’ 401 вќЊ
 
 ### Scenario 2: Multiple Sessions
-1. Sign up → Get token A
-2. Sign in → Get token B (both valid)
-3. Sign out with token A → Only A blacklisted
-4. Token B still works ✅
+1. Sign up в†’ Get token A
+2. Sign in в†’ Get token B (both valid)
+3. Sign out with token A в†’ Only A blacklisted
+4. Token B still works вњ…
 
 ### Scenario 3: Token Expiration
-1. Sign up → Get token
-2. Sign out → Token blacklisted
-3. Wait 24 hours → Token expires naturally
+1. Sign up в†’ Get token
+2. Sign out в†’ Token blacklisted
+3. Wait 24 hours в†’ Token expires naturally
 4. Redis auto-deletes blacklist entry (TTL = 0)
 
 ---
 
-## 🐛 Troubleshooting
+## рџђ› Troubleshooting
 
 ### Swagger shows "Authorization undefined"
-- Click 🔓 Authorize button
+- Click рџ”“ Authorize button
 - Enter token **without** "Bearer " prefix
 - Just paste the raw JWT token
 
@@ -146,7 +146,7 @@ redis-cli --scan --pattern "jwt:blacklist:*" | xargs redis-cli DEL
 ### Token still works after sign out
 - Check Redis connection: `docker-compose exec web rails runner "puts Rails.application.config.redis.ping"`
 - Should return "PONG"
-- Check blacklist: `bash monitor_redis_blacklist.sh`
+- Check blacklist: `bash utilities/scripts/monitor_redis_blacklist.sh`
 
 ### Redis is empty but should have tokens
 - Check app logs: `docker-compose logs web | grep -i blacklist`
@@ -154,7 +154,7 @@ redis-cli --scan --pattern "jwt:blacklist:*" | xargs redis-cli DEL
 
 ---
 
-## 📝 Quick Test Script
+## рџ“ќ Quick Test Script
 
 Run this for automated testing:
 
@@ -162,21 +162,22 @@ Run this for automated testing:
 # Test blacklist functionality
 docker-compose exec web rails runner test_api_blacklist.rb
 
-# Expected output: "ALL API TESTS PASSED ✓"
+# Expected output: "ALL API TESTS PASSED вњ“"
 ```
 
 ---
 
-## 🎉 Success Indicators
+## рџЋ‰ Success Indicators
 
-✅ Swagger UI loads at http://localhost:3000/api-docs
-✅ Sign up returns token
-✅ Token works for /api/me
-✅ Sign out returns "Successfully signed out"
-✅ Same token gets 401 after sign out
-✅ Sign in returns new working token
-✅ Redis monitor shows blacklist entries with TTL
+вњ… Swagger UI loads at http://localhost:3000/api-docs
+вњ… Sign up returns token
+вњ… Token works for /api/me
+вњ… Sign out returns "Successfully signed out"
+вњ… Same token gets 401 after sign out
+вњ… Sign in returns new working token
+вњ… Redis monitor shows blacklist entries with TTL
 
 ---
 
-**Happy Testing!** 🚀
+**Happy Testing!** рџљЂ
+

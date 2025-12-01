@@ -84,6 +84,7 @@ Manage Environments в†’ Base Environment
 ```
 
 ### РЎРєРѕРїРёСЂСѓР№С‚Рµ:
+
 ```
 eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozOSwiZXhwIjoxNzY0NTI5NTUwfQ.h61r9z0Rud3pyUVrYoNrO88wr-xf6Vq8Z8iJN1FFQV4
 ```
